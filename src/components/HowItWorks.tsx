@@ -10,7 +10,9 @@ export const HowItWorks = () => {
         {/* Step 1 */}
         <div className="self-stretch flex items-center gap-[50px]">
           <div className="h-[169px] w-[156px] relative shrink-0">
-            <div className="absolute top-[29px] left-0 shadow-[0.5px_0.5px_20px_rgba(255,255,255,0.1)] rounded-[40px] w-[140px] h-[140px] bg-[#021b13]" />
+            <div className="absolute top-[29px] left-0 shadow-[0.5px_0.5px_20px_rgba(255,255,255,0.1)] rounded-[40px] w-[140px] h-[140px] bg-[#021b13] flex items-center justify-center">
+              <img src="/icons/Vector.svg" alt="Vector" className="w-[54px] h-[54px]" />
+            </div>
             <div className="absolute top-0 left-[96px] w-[60px] h-[70px]">
               <div className="absolute top-[10px] left-0 rounded-[50%] bg-[#021b13] border border-[#272e3f] box-border w-[60px] h-[60px]" />
               <div className="absolute top-[26px] left-[23px] text-[18px] font-['Inter'] text-[#00d492]">1</div>
@@ -29,7 +31,9 @@ export const HowItWorks = () => {
         {/* Step 2 */}
         <div className="self-stretch flex items-center gap-[50px]">
           <div className="h-[169px] w-[156px] relative shrink-0">
-            <div className="absolute top-[29px] left-0 shadow-[0.5px_0.5px_20px_rgba(255,255,255,0.1)] rounded-[40px] w-[140px] h-[140px] bg-[#021b13]" />
+            <div className="absolute top-[29px] left-0 shadow-[0.5px_0.5px_20px_rgba(255,255,255,0.1)] rounded-[40px] w-[140px] h-[140px] bg-[#021b13] flex items-center justify-center">
+              <img src="/icons/cpu.svg" alt="CPU" className="w-[54px] h-[54px]" />
+            </div>
             <div className="absolute top-0 left-[96px] w-[60px] h-[70px]">
               <div className="absolute top-[10px] left-0 rounded-[50%] bg-[#021b13] border border-[#272e3f] box-border w-[60px] h-[60px]" />
               <div className="absolute top-[26px] left-[23px] text-[18px] font-['Inter'] text-[#00d492]">2</div>
@@ -48,7 +52,9 @@ export const HowItWorks = () => {
         {/* Step 3 */}
         <div className="self-stretch flex items-center gap-[50px]">
           <div className="h-[169px] w-[156px] relative shrink-0">
-            <div className="absolute top-[29px] left-0 shadow-[0.5px_0.5px_20px_rgba(255,255,255,0.1)] rounded-[40px] w-[140px] h-[140px] bg-[#021b13]" />
+            <div className="absolute top-[29px] left-0 shadow-[0.5px_0.5px_20px_rgba(255,255,255,0.1)] rounded-[40px] w-[140px] h-[140px] bg-[#021b13] flex items-center justify-center">
+              <img src="/icons/clipboard-check.svg" alt="Clipboard" className="w-[54px] h-[54px]" />
+            </div>
             <div className="absolute top-0 left-[96px] w-[60px] h-[70px]">
               <div className="absolute top-[10px] left-0 rounded-[50%] bg-[#021b13] border border-[#272e3f] box-border w-[60px] h-[60px]" />
               <div className="absolute top-[26px] left-[23px] text-[18px] font-['Inter'] text-[#00d492]">3</div>
