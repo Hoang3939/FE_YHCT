@@ -33,10 +33,13 @@ export const Header = () => {
 
         {/* buttonMenuParent */}
         <div className="w-[251px] flex items-center gap-[10px]">
-          <div className="w-[109px] flex flex-col items-center justify-center gap-[1px]">
-            <div className="relative cursor-pointer hover:text-white transition-colors">Đăng nhập</div>
-            <div className="w-[1px] h-[1px] relative rounded-[10px] bg-[#d9d9d9] opacity-0" />
-          </div>
+          <a
+            href="/login"
+            className="w-[109px] flex flex-col items-center justify-center gap-[1px]"
+          >
+            <span className="relative cursor-pointer hover:text-white transition-colors">Đăng nhập</span>
+            <span className="w-[1px] h-[1px] relative rounded-[10px] bg-[#d9d9d9] opacity-0" />
+          </a>
           <button className="h-[35px] w-[130px] rounded-[30px] bg-[#008b74] hover:bg-[#007461] transition-colors flex items-center justify-center p-[10px] box-border text-[18px] text-white cursor-pointer">
             <div className="relative shrink-0">Start Demo</div>
           </button>
