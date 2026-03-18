@@ -28,7 +28,6 @@ export default function LoginPage() {
         body: JSON.stringify({
           email,
           password,
-          remember,
         }),
       });
 
@@ -42,7 +41,7 @@ export default function LoginPage() {
         localStorage.setItem('auth_token', payload.token);
       }
 
-      router.push(payload?.redirect ?? '/chat');
+      router.push('/chat');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Đăng nhập thất bại');
     } finally {
