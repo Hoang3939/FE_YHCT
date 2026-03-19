@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-const AUTH_BASE_URL = process.env.NEXT_PUBLIC_AUTH_BASE_URL ?? 'http://localhost:3000';
+const AUTH_BASE_URL = process.env.NEXT_PUBLIC_AUTH_BASE_URL ?? 'http://localhost:3001';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,29 +14,79 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
+  /* Unverified-account states */
+  const [needsVerification, setNeedsVerification] = useState(false);
+  const [unverifiedEmail, setUnverifiedEmail] = useState('');
+  const [resending, setResending] = useState(false);
+  const [resendMsg, setResendMsg] = useState('');
+  const [cooldown, setCooldown] = useState(0);
+
+  const startCooldown = (seconds = 30) => {
+    setCooldown(seconds);
+    const interval = setInterval(() => {
+      setCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const handleResend = async () => {
+    if (cooldown > 0 || resending) return;
+    setResending(true);
+    setResendMsg('');
+
+    try {
+      const response = await fetch(`${AUTH_BASE_URL}/auth/resend-verification`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: unverifiedEmail }),
+      });
+
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(payload?.message ?? 'Gửi lại thất bại');
+      }
+
+      setResendMsg('Đã gửi lại email xác thực!');
+      startCooldown(30);
+    } catch (err) {
+      setResendMsg(err instanceof Error ? err.message : 'Gửi lại thất bại');
+    } finally {
+      setResending(false);
+    }
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError('');
+    setNeedsVerification(false);
     setIsSubmitting(true);
 
     try {
       const response = await fetch(`${AUTH_BASE_URL}/auth/login`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
 
+      const payload = await response.json().catch(() => ({}));
+
       if (!response.ok) {
-        const payload = await response.json().catch(() => ({}));
+        /* Check if account needs verification */
+        if (response.status === 403 && payload?.needsVerification) {
+          setNeedsVerification(true);
+          setUnverifiedEmail(payload.email ?? email);
+          setError(payload.message ?? 'Tài khoản chưa được xác thực');
+          return;
+        }
         throw new Error(payload?.message ?? 'Đăng nhập thất bại');
       }
 
-      const payload = await response.json();
       /* Store tokens and user info */
       if (payload?.accessToken) {
         localStorage.setItem('accessToken', payload.accessToken);
@@ -111,6 +161,30 @@ export default function LoginPage() {
             </div>
 
             {error ? <div className="text-[12px] text-[#ffb5b5]">{error}</div> : null}
+
+            {/* Resend verification block */}
+            {needsVerification && (
+              <div className="rounded-[10px] bg-[#1a2920] border border-[#2d4837] p-[14px] flex flex-col gap-[8px]">
+                <div className="text-[12px] text-[#c5d2c8]">
+                  Tài khoản chưa xác thực. Kiểm tra email <span className="text-[#7de0b0] font-semibold">{unverifiedEmail}</span> hoặc gửi lại:
+                </div>
+                <button
+                  type="button"
+                  disabled={cooldown > 0 || resending}
+                  onClick={handleResend}
+                  className="h-[34px] rounded-[8px] bg-[#7de0b0] text-[#1b1f1c] font-semibold text-[12px] disabled:opacity-50 transition-opacity"
+                >
+                  {resending
+                    ? 'Đang gửi...'
+                    : cooldown > 0
+                      ? `Gửi lại sau ${cooldown}s`
+                      : 'Gửi lại email xác thực'}
+                </button>
+                {resendMsg ? (
+                  <div className="text-[11px] text-[#9ff5c1]">{resendMsg}</div>
+                ) : null}
+              </div>
+            )}
 
             <button
               type="submit"
