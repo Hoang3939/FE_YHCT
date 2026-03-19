@@ -137,7 +137,7 @@ export default function ChatPage() {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ refreshToken }),
+        body: JSON.stringify({ refreshToken: refreshToken ?? '' }),
       });
     } catch (e) {
       console.error('Logout error:', e);
