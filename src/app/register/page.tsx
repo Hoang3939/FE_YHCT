@@ -2,12 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
-const AUTH_BASE_URL = process.env.NEXT_PUBLIC_AUTH_BASE_URL ?? 'http://localhost:3000';
+const AUTH_BASE_URL = process.env.NEXT_PUBLIC_AUTH_BASE_URL ?? 'http://localhost:3001';
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,48 +13,45 @@ export default function RegisterPage() {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+
+  /* After successful signup, switch to "check your email" screen */
+  const [registered, setRegistered] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState('');
+  const [resending, setResending] = useState(false);
+  const [resendMsg, setResendMsg] = useState('');
+  const [cooldown, setCooldown] = useState(0);
 
   const formatErrorMessage = (message: unknown) => {
-    if (Array.isArray(message)) {
-      return message.join(', ');
-    }
-
-    if (typeof message === 'string') {
-      return message;
-    }
-
+    if (Array.isArray(message)) return message.join(', ');
+    if (typeof message === 'string') return message;
     return 'Đăng ký thất bại';
   };
 
   const validateClient = () => {
-    if (!fullName.trim()) {
-      return 'Họ và tên không được để trống.';
-    }
-
-    if (!email.includes('@')) {
-      return 'Email không hợp lệ.';
-    }
-
-    if (password.length < 6) {
-      return 'Mật khẩu phải có ít nhất 6 ký tự.';
-    }
-
-    if (password !== confirmPassword) {
-      return 'Mật khẩu xác nhận không khớp.';
-    }
-
-    if (!acceptedTerms) {
-      return 'Bạn cần đồng ý với điều khoản để tiếp tục.';
-    }
-
+    if (!fullName.trim()) return 'Họ và tên không được để trống.';
+    if (!email.includes('@')) return 'Email không hợp lệ.';
+    if (password.length < 6) return 'Mật khẩu phải có ít nhất 6 ký tự.';
+    if (password !== confirmPassword) return 'Mật khẩu xác nhận không khớp.';
+    if (!acceptedTerms) return 'Bạn cần đồng ý với điều khoản để tiếp tục.';
     return '';
+  };
+
+  const startCooldown = (seconds = 30) => {
+    setCooldown(seconds);
+    const interval = setInterval(() => {
+      setCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError('');
-    setSuccess('');
 
     const clientError = validateClient();
     if (clientError) {
@@ -69,15 +64,8 @@ export default function RegisterPage() {
     try {
       const response = await fetch(`${AUTH_BASE_URL}/auth/signup`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          fullName,
-          email,
-          password,
-          confirmPassword,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullName, email, password, confirmPassword }),
       });
 
       const payload = await response.json().catch(() => ({}));
@@ -86,8 +74,9 @@ export default function RegisterPage() {
         throw new Error(formatErrorMessage(payload?.message));
       }
 
-      setSuccess(payload?.message ?? 'Đăng ký thành công. Vui lòng kiểm tra email để xác thực.');
-      router.push('/login');
+      setRegisteredEmail(email);
+      setRegistered(true);
+      startCooldown(30);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Đăng ký thất bại');
     } finally {
@@ -95,6 +84,91 @@ export default function RegisterPage() {
     }
   };
 
+  const handleResend = async () => {
+    if (cooldown > 0 || resending) return;
+    setResending(true);
+    setResendMsg('');
+
+    try {
+      const response = await fetch(`${AUTH_BASE_URL}/auth/resend-verification`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: registeredEmail }),
+      });
+
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(payload?.message ?? 'Gửi lại thất bại');
+      }
+
+      setResendMsg('Đã gửi lại email xác thực!');
+      startCooldown(30);
+    } catch (err) {
+      setResendMsg(err instanceof Error ? err.message : 'Gửi lại thất bại');
+    } finally {
+      setResending(false);
+    }
+  };
+
+  /* ── "Check your email" screen ── */
+  if (registered) {
+    return (
+      <main className="min-h-screen w-full bg-[#2e312e] flex items-center justify-center p-[32px]">
+        <div className="w-[520px] max-w-full rounded-[20px] bg-[#0c1410] border border-[#243127] shadow-[0_30px_80px_rgba(0,0,0,0.55)] p-[48px] text-center text-white">
+          <div className="flex justify-center mb-[20px]">
+            <div className="w-[56px] h-[56px] rounded-full bg-[#1a3a28] flex items-center justify-center">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#7de0b0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="4" width="20" height="16" rx="2" />
+                <path d="M22 4L12 13L2 4" />
+              </svg>
+            </div>
+          </div>
+
+          <div className="text-[26px] font-semibold font-['Playfair_Display'] mb-[12px]">
+            Kiểm tra email
+          </div>
+
+          <div className="text-[14px] text-[#c5d2c8] mb-[8px] leading-[1.6]">
+            Chúng tôi đã gửi email xác thực đến
+          </div>
+          <div className="text-[14px] text-[#7de0b0] font-semibold mb-[24px]">
+            {registeredEmail}
+          </div>
+          <div className="text-[13px] text-[#aab3ac] mb-[28px] leading-[1.5]">
+            Nhấn vào link trong email để xác thực tài khoản.
+            <br />
+            Sau đó bạn có thể đăng nhập.
+          </div>
+
+          <button
+            type="button"
+            disabled={cooldown > 0 || resending}
+            onClick={handleResend}
+            className="h-[42px] px-[28px] rounded-[10px] bg-white text-[#1b1f1c] font-semibold text-[14px] disabled:opacity-50 transition-opacity"
+          >
+            {resending
+              ? 'Đang gửi...'
+              : cooldown > 0
+                ? `Gửi lại sau ${cooldown}s`
+                : 'Gửi lại email xác thực'}
+          </button>
+
+          {resendMsg ? (
+            <div className="mt-[12px] text-[12px] text-[#9ff5c1]">{resendMsg}</div>
+          ) : null}
+
+          <div className="mt-[24px] text-[12px] text-[#aab3ac]">
+            <Link href="/login" className="text-white hover:underline">
+              Quay về đăng nhập
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  /* ── Register form ── */
   return (
     <main className="min-h-screen w-full bg-[#2e312e] flex items-center justify-center p-[32px]">
       <div className="w-[1080px] max-w-full min-h-[640px] rounded-[20px] overflow-visible bg-[#0c1410] border border-[#243127] shadow-[0_30px_80px_rgba(0,0,0,0.55)] flex">
@@ -163,7 +237,6 @@ export default function RegisterPage() {
             </label>
 
             {error ? <div className="text-[12px] text-[#ffb5b5]">{error}</div> : null}
-            {success ? <div className="text-[12px] text-[#9ff5c1]">{success}</div> : null}
 
             <button
               type="submit"
