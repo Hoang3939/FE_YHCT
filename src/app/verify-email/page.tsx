@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
@@ -10,8 +10,12 @@ function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('');
+  const calledRef = useRef(false);
 
   useEffect(() => {
+    if (calledRef.current) return;
+    calledRef.current = true;
+
     const token = searchParams.get('token');
 
     if (!token) {

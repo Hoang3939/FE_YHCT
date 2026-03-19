@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-const AUTH_BASE_URL = process.env.NEXT_PUBLIC_AUTH_BASE_URL ?? 'http://localhost:3000';
+const AUTH_BASE_URL = process.env.NEXT_PUBLIC_AUTH_BASE_URL ?? 'http://localhost:3001';
 
 export default function ChatPage() {
   const router = useRouter();
@@ -11,7 +11,7 @@ export default function ChatPage() {
   const username = 'Cục đăng';
 
   useEffect(() => {
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem('accessToken');
     if (!token) {
       router.push('/login');
     }
@@ -21,7 +21,8 @@ export default function ChatPage() {
     if (isLoggingOut) return;
     setIsLoggingOut(true);
 
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken');
 
     try {
       await fetch(`${AUTH_BASE_URL}/auth/logout`, {
@@ -30,9 +31,11 @@ export default function ChatPage() {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
+        body: JSON.stringify({ refreshToken: refreshToken ?? '' }),
       });
     } finally {
-      localStorage.removeItem('auth_token');
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
       setIsLoggingOut(false);
       router.push('/login');
     }

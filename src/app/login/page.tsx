@@ -2,12 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 const AUTH_BASE_URL = process.env.NEXT_PUBLIC_AUTH_BASE_URL ?? 'http://localhost:3001';
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
@@ -95,7 +93,7 @@ export default function LoginPage() {
         localStorage.setItem('refreshToken', payload.refreshToken);
       }
 
-      router.push('/chat');
+      window.location.href = '/chat';
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Đăng nhập thất bại');
     } finally {
