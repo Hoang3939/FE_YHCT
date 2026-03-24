@@ -37,8 +37,18 @@ export default function LoginPage() {
       }
 
       const payload = await response.json();
-      if (payload?.token) {
-        localStorage.setItem('auth_token', payload.token);
+      /* Store tokens and user info */
+      if (payload?.accessToken) {
+        localStorage.setItem('accessToken', payload.accessToken);
+      }
+      if (payload?.refreshToken) {
+        localStorage.setItem('refreshToken', payload.refreshToken);
+      }
+      if (payload?.fullName) {
+        localStorage.setItem('userFullName', payload.fullName);
+      }
+      if (payload?.email) {
+        localStorage.setItem('userEmail', payload.email);
       }
 
       router.push('/chat');

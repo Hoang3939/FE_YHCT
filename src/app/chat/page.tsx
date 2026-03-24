@@ -1,15 +1,14 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const AUTH_BASE_URL = process.env.NEXT_PUBLIC_AUTH_BASE_URL ?? 'http://localhost:3000';
-const RAG_BASE_URL = process.env.NEXT_PUBLIC_RAG_API_URL ?? 'http://localhost:8000';
 
 type ChatMessage = {
-  messageId?: string;
   role: 'user' | 'assistant';
   content: string;
+  attachments?: string[];
   timestamp?: string;
 };
 
@@ -18,104 +17,96 @@ type Conversation = {
   conversationTitle: string | null;
   lastMessageContent: string | null;
   messageCount: number;
+  updatedAt?: string;
 };
 
 export default function ChatPage() {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [username, setUsername] = useState('');
+  const [userEmail, setUserEmail] = useState('');
   const [message, setMessage] = useState('');
-  const [isSending, setIsSending] = useState(false);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem('accessToken');
     if (!token) {
       router.push('/login');
       return;
     }
 
-    const loadProfile = async () => {
-      try {
-        const response = await fetch(`${AUTH_BASE_URL}/auth/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+    setUsername(localStorage.getItem('userFullName') ?? '');
+    setUserEmail(localStorage.getItem('userEmail') ?? '');
 
-        const payload = await response.json().catch(() => ({}));
-        if (!response.ok) {
-          throw new Error(payload?.message ?? 'Không thể lấy thông tin tài khoản.');
+    const loadProfileAndConversations = async () => {
+      try {
+        // Load Profile
+        const profileRes = await fetch(`${AUTH_BASE_URL}/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (profileRes.ok) {
+          const profile = await profileRes.json();
+          setUsername(profile.fullName ?? '');
+          setUserEmail(profile.email ?? '');
+        } else {
+          // If profile fails, token might be invalid
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          router.push('/login');
+          return;
         }
 
-        setFullName(payload.fullName ?? '');
-        setEmail(payload.email ?? '');
+        // Load Conversations
+        const convRes = await fetch(`${AUTH_BASE_URL}/chat/conversations`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (convRes.ok) {
+          const data = await convRes.json();
+          if (Array.isArray(data)) setConversations(data);
+        }
       } catch (error) {
-        localStorage.removeItem('auth_token');
-        router.push('/login');
+        console.error('Error loading initial data:', error);
       }
     };
 
-    loadProfile();
+    loadProfileAndConversations();
   }, [router]);
 
   useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      return;
-    }
-
-    const loadConversations = async () => {
-      try {
-        const response = await fetch(`${AUTH_BASE_URL}/auth/conversations`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const payload = await response.json().catch(() => []);
-        if (!response.ok) {
-          throw new Error(payload?.message ?? 'Không thể tải cuộc trò chuyện.');
-        }
-        const list = Array.isArray(payload) ? payload : [];
-        setConversations(list);
-        if (list.length > 0) {
-          setActiveConversationId((prev) => prev ?? list[0].conversationId);
-        }
-      } catch {
-        setConversations([]);
-      }
-    };
-
-    loadConversations();
-  }, []);
-
-  useEffect(() => {
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem('accessToken');
     if (!token || !activeConversationId) {
-      setChatMessages([]);
+      setMessages([]);
       return;
     }
 
     const loadMessages = async () => {
+      setIsLoading(true);
       try {
-        const response = await fetch(
-          `${AUTH_BASE_URL}/auth/conversations/${activeConversationId}/messages`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-        const payload = await response.json().catch(() => []);
-        if (!response.ok) {
-          throw new Error(payload?.message ?? 'Không thể tải tin nhắn.');
+        const response = await fetch(`${AUTH_BASE_URL}/chat/conversations/${activeConversationId}/messages`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (Array.isArray(data)) {
+            setMessages(data.map((m: any) => ({ 
+              role: m.role, 
+              content: m.content,
+              attachments: m.attachments // backend doesn't seem to return this yet, but for future proofing
+            })));
+          }
         }
-        setChatMessages(Array.isArray(payload) ? payload : []);
-      } catch {
-        setChatMessages([]);
+      } catch (error) {
+        console.error('Error loading messages:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -126,7 +117,8 @@ export default function ChatPage() {
     if (isLoggingOut) return;
     setIsLoggingOut(true);
 
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken');
 
     try {
       await fetch(`${AUTH_BASE_URL}/auth/logout`, {
@@ -135,141 +127,156 @@ export default function ChatPage() {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
+        body: JSON.stringify({ refreshToken }),
       });
+    } catch (e) {
+      console.error('Logout error:', e);
     } finally {
-      localStorage.removeItem('auth_token');
-      setFullName('');
-      setEmail('');
-      setMessage('');
-      setChatMessages([]);
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userFullName');
+      localStorage.removeItem('userEmail');
+      setUsername('');
+      setUserEmail('');
+      setMessages([]);
       setIsLoggingOut(false);
       router.push('/login');
     }
   };
 
-  const handleDeleteConversation = async (conversationId: string) => {
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
+  const selectConversation = (id: string) => {
+    setActiveConversationId(id);
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    setDeletingId(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingId) return;
 
     try {
-      await fetch(`${AUTH_BASE_URL}/auth/conversations/${conversationId}/delete`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const token = localStorage.getItem('accessToken');
+      const res = await fetch(`${AUTH_BASE_URL}/chat/conversations/${deletingId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
       });
-    } finally {
-      setConversations((prev) => prev.filter((item) => item.conversationId !== conversationId));
-      if (activeConversationId === conversationId) {
-        setActiveConversationId(null);
-        setChatMessages([]);
+
+      if (res.ok) {
+        if (activeConversationId === deletingId) {
+          setActiveConversationId(null);
+          setMessages([]);
+        }
+        setConversations((prev) => prev.filter((c) => c.conversationId !== deletingId));
       }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setShowDeleteModal(false);
+      setDeletingId(null);
     }
   };
 
-  const handleSend = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!message.trim() || isSending) return;
+  const onChooseFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = Array.from(e.target.files ?? []);
+    const allowedExt = ['.pdf', '.doc', '.docx'];
+    const valid = selected.filter((f) =>
+      allowedExt.some((ext) => f.name.toLowerCase().endsWith(ext)),
+    );
 
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      router.push('/login');
-      return;
+    setAttachments((prev) => {
+      const merged = [...prev, ...valid];
+      return merged.slice(0, 5);
+    });
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
+  };
 
-    const userMessage = message.trim();
+  const removeAttachment = (index: number) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSendMessage = async (text: string) => {
+    const safeText = text.trim();
+    if ((!safeText && attachments.length === 0) || isLoading) return;
+
+    const userDisplayContent = safeText;
+    const currentAttachmentsNames = attachments.map((file) => file.name);
+
+    const newMessages: ChatMessage[] = [
+      ...messages,
+      {
+        role: 'user',
+        content: userDisplayContent,
+        attachments: currentAttachmentsNames,
+      },
+    ];
+
+    setMessages(newMessages);
     setMessage('');
-    setIsSending(true);
+    setIsLoading(true);
 
-    let conversationId = activeConversationId;
-
+    const token = localStorage.getItem('accessToken');
     try {
-      if (!conversationId) {
-        const createResponse = await fetch(`${AUTH_BASE_URL}/auth/conversations`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ title: userMessage.slice(0, 40) }),
-        });
+      const formData = new FormData();
+      formData.append('message', safeText || 'Phân tích nội dung file đính kèm');
+      if (activeConversationId) formData.append('conversationId', activeConversationId);
+      attachments.forEach((file) => formData.append('attachments', file));
 
-        const created = await createResponse.json().catch(() => ({}));
-        if (!createResponse.ok) {
-          throw new Error(created?.message ?? 'Không thể tạo cuộc trò chuyện.');
-        }
-
-        conversationId = created.conversationId;
-        setActiveConversationId(conversationId);
-        setConversations((prev) => [created, ...prev]);
-      }
-
-      const userRecordResponse = await fetch(
-        `${AUTH_BASE_URL}/auth/conversations/${conversationId}/messages`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ role: 'user', content: userMessage }),
-        },
-      );
-      await userRecordResponse.json().catch(() => ({}));
-
-      setChatMessages((prev) => [...prev, { role: 'user', content: userMessage }]);
-
-      const response = await fetch(`${RAG_BASE_URL}/chat`, {
+      const response = await fetch(`${AUTH_BASE_URL}/chat/message`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ message: userMessage }),
+        body: formData,
       });
 
-      const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(payload?.detail ?? 'Không thể gửi câu hỏi.');
+        throw new Error('API Error');
       }
 
-      const assistantContent = payload.reply ?? '';
+      const payload = await response.json();
+      setMessages([...newMessages, { role: 'assistant', content: payload.reply ?? 'Không có phản hồi' }]);
+      setAttachments([]);
 
-      const assistantRecordResponse = await fetch(
-        `${AUTH_BASE_URL}/auth/conversations/${conversationId}/messages`,
+      if (!activeConversationId && payload.conversationId) {
+        setActiveConversationId(payload.conversationId);
+      }
+
+      // Refresh conversations list
+      const convRes = await fetch(`${AUTH_BASE_URL}/chat/conversations`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (convRes.ok) {
+        const data = await convRes.json();
+        if (Array.isArray(data)) setConversations(data);
+      }
+    } catch (error) {
+      setMessages([
+        ...newMessages,
         {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ role: 'assistant', content: assistantContent }),
+          role: 'assistant',
+          content: 'Có lỗi xảy ra khi kết nối tới RAG API. Vui lòng kiểm tra backend.',
         },
-      );
-      await assistantRecordResponse.json().catch(() => ({}));
-
-      setChatMessages((prev) => [...prev, { role: 'assistant', content: assistantContent }]);
-      setConversations((prev) =>
-        prev.map((item) =>
-          item.conversationId === conversationId
-            ? {
-                ...item,
-                lastMessageContent: assistantContent,
-                messageCount: (item.messageCount ?? 0) + 2,
-              }
-            : item,
-        ),
-      );
-    } catch (err) {
-      setChatMessages((prev) => [
-        ...prev,
-        { role: 'assistant', content: err instanceof Error ? err.message : 'Đã có lỗi xảy ra.' },
       ]);
     } finally {
-      setIsSending(false);
+      setIsLoading(false);
     }
+  };
+
+  const renderMarkdownLinks = (text: string) => {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(
+        /\[([^\]]+)\]\(([^)]+)\)/g,
+        '<a href="$2" target="_blank" class="text-[#00d492] hover:underline">$1</a>',
+      );
   };
 
   return (
@@ -278,10 +285,11 @@ export default function ChatPage() {
         <aside className="w-[280px] border-r border-[#1f2a23] bg-[#0c120f] flex flex-col">
           <div className="p-[16px]">
             <button
-              type="button"
               onClick={() => {
                 setActiveConversationId(null);
-                setChatMessages([]);
+                setMessages([]);
+                setMessage('');
+                setAttachments([]);
               }}
               className="w-full h-[36px] rounded-[8px] bg-[#5b605d] text-white text-[12px] flex items-center justify-center gap-[8px]"
             >
@@ -292,7 +300,7 @@ export default function ChatPage() {
           <div className="px-[16px] text-[12px] text-[#c4c9c4] flex flex-col gap-[10px]">
             <div className="flex items-center gap-[8px]">
               <span className="text-[14px]">🔍</span>
-              Tìm kiếm
+              Tìm kiếm (Coming soon)
             </div>
             <div className="flex items-center gap-[8px]">
               <span className="text-[14px]">⚙️</span>
@@ -300,65 +308,57 @@ export default function ChatPage() {
             </div>
           </div>
           <div className="mt-[16px] px-[16px] text-[12px] text-[#c4c9c4] flex-1 overflow-y-auto">
-            <div className="mb-[12px]">Cuộc trò chuyện</div>
-            <div className="flex flex-col gap-[8px]">
-              {conversations.length === 0 ? (
-                <div className="text-[11px] text-[#7d887f]">Chưa có cuộc trò chuyện.</div>
-              ) : (
-                conversations.map((item) => (
-                  <div
-                    key={item.conversationId}
-                    className={`group relative flex items-start justify-between gap-[8px] px-[10px] py-[8px] rounded-[10px] border text-[11px] ${
-                      activeConversationId === item.conversationId
-                        ? 'border-[#3c4c43] bg-[#202a26] text-[#e1e7e2]'
-                        : 'border-transparent hover:border-[#2d3931] text-[#c4c9c4]'
-                    }`}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => setActiveConversationId(item.conversationId)}
-                      className="flex-1 text-left min-w-0 pr-[14px]"
-                    >
-                      <div className="font-semibold truncate">
-                        {item.conversationTitle ?? 'Cuộc trò chuyện'}
-                      </div>
-                      {item.lastMessageContent ? (
-                        <div className="text-[10px] text-[#8f9992] truncate mt-[2px]">{item.lastMessageContent}</div>
-                      ) : null}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteConversation(item.conversationId)}
-                      className="absolute top-[8px] right-[8px] flex items-center justify-center opacity-0 group-hover:opacity-100 text-[#8f9992] hover:text-[#f39c9c] transition-colors"
-                      title="Xóa"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-[14px] h-[14px]">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
+            <div className="mb-[12px] font-semibold text-[#a7b0aa]">Cuộc trò chuyện</div>
+            <div className="flex flex-col gap-[6px]">
+              {conversations.map((conv) => (
+                <button
+                  key={conv.conversationId}
+                  onClick={() => selectConversation(conv.conversationId)}
+                  className={`w-full text-left px-[10px] py-[8px] rounded-[8px] transition-colors group relative ${
+                    activeConversationId === conv.conversationId
+                      ? 'bg-[#2a3630] text-white'
+                      : 'hover:bg-[#1b2320]'
+                  }`}
+                >
+                  <div className="truncate pr-[20px] text-[13px] font-medium">
+                    {conv.conversationTitle || 'Trò chuyện mới'}
                   </div>
-                ))
+                  <div className="truncate pr-[20px] text-[10px] text-[#6f7a73]">
+                    {conv.lastMessageContent || '...'}
+                  </div>
+                  <div
+                    onClick={(e) => handleDeleteClick(e, conv.conversationId)}
+                    className="absolute top-[8px] right-[8px] w-[18px] h-[18px] rounded-full flex items-center justify-center text-[#6f7a73] hover:text-[#ff4d4d] hover:bg-[rgba(255,77,77,0.1)] opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    ×
+                  </div>
+                </button>
+              ))}
+              {conversations.length === 0 && (
+                <div className="text-[#6f7a73] italic text-center py-[10px]">Chưa có cuộc trò chuyện</div>
               )}
             </div>
           </div>
           <div className="p-[16px]">
             <div className="flex items-center gap-[10px] rounded-[10px] bg-[#1b2320] border border-[#28332b] px-[12px] py-[10px] text-[12px] text-[#cfd5cf]">
-              <div className="w-[26px] h-[26px] rounded-[6px] bg-[#00d492] text-[#0c1210] flex items-center justify-center font-semibold">C</div>
-              <div className="flex-1">
-                <div className="text-[#e2e7e2]">{fullName || '...'}</div>
-                <div className="text-[10px] text-[#a7b0aa]">{email || ''}</div>
+              <div className="w-[26px] h-[26px] rounded-[6px] bg-[#00d492] text-[#0c1210] flex items-center justify-center font-semibold text-[14px]">
+                {username ? username.charAt(0).toUpperCase() : 'U'}
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <div className="text-[#e2e7e2] truncate">{username || 'Khách'}</div>
+                <div className="text-[10px] text-[#a7b0aa] truncate">{userEmail}</div>
               </div>
               <div className="w-[6px] h-[6px] rounded-full bg-[#00d492]" />
             </div>
           </div>
         </aside>
 
-        <section className="flex-1 relative min-h-[720px]">
+        <section className="flex-1 relative flex flex-col">
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:84px_100%] opacity-30 pointer-events-none" />
-          <header className="h-[54px] border-b border-[#1f2a23] flex items-center justify-between px-[20px] text-[#cfd5cf] text-[13px]">
+          <header className="relative z-10 h-[54px] shrink-0 border-b border-[#1f2a23] flex items-center justify-between px-[20px] text-[#cfd5cf] text-[13px]">
             <div className="flex items-center gap-[12px]">
               <span className="w-[10px] h-[10px] rounded-full bg-[#9adbc1]" />
-              Logo
+              YHCT Assistant
               <span className="text-[#6f7a73]">/</span>
               rag-fast-2.5
             </div>
@@ -374,88 +374,181 @@ export default function ChatPage() {
             </div>
           </header>
 
-          <div className="relative min-h-[calc(100%-54px)] flex flex-col text-white px-[24px] pt-[120px] pb-[24px]">
-            <div className="text-center">
-              <div className="text-[28px] font-['Playfair_Display']">Chào {fullName || '...'}</div>
-              <div className="text-[22px] font-['Playfair_Display']">Bạn muốn tra cứu bài thuốc nào?</div>
-            </div>
-
-            <div className="mt-[28px] flex-1 overflow-y-auto pr-[6px]">
-              {chatMessages.length === 0 ? (
-                <div className="text-center text-[12px] text-[#cfd5cf]">Chưa có hội thoại.</div>
-              ) : (
-                <div className="flex flex-col gap-[14px]">
-                  {chatMessages.map((item, index) => (
-                    <div
-                      key={`${item.role}-${index}`}
-                      className={`max-w-[80%] rounded-[16px] px-[14px] py-[10px] text-[13px] leading-relaxed whitespace-pre-wrap ${
-                        item.role === 'user'
-                          ? 'ml-auto bg-[#2c3832] border border-[#3d4b43] text-[#e7eee9]'
-                          : 'bg-[#1a231f] border border-[#2a3430] text-[#d8e0da]'
-                      }`}
-                    >
-                      {item.content}
+          <div className="relative flex-1 flex flex-col items-center justify-center text-center text-white px-[24px]">
+            {messages.length === 0 ? (
+              <div className="z-10">
+                <div className="text-[28px] font-['Playfair_Display']">Chào {username ? username.split(' ').pop() : 'Bạn'}</div>
+                <div className="text-[22px] font-['Playfair_Display']">Bạn muốn tra cứu bài thuốc nào?</div>
+              </div>
+            ) : (
+              <div className="absolute inset-0 top-0 bottom-[140px] overflow-y-auto p-[24px] flex flex-col items-center">
+                <div className="w-full max-w-[800px] flex flex-col gap-[20px] text-left">
+                  {messages.map((msg, idx) => (
+                    <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      <div
+                        className={`max-w-[80%] rounded-[14px] p-[14px] ${
+                          msg.role === 'user'
+                            ? 'bg-[#3b433f] text-[#e2e7e2]'
+                            : 'bg-[#1b2320] text-[#cfd5cf] border border-[#28332b]'
+                        }`}
+                      >
+                        {msg.role === 'assistant' ? (
+                          <div
+                            dangerouslySetInnerHTML={{ __html: renderMarkdownLinks(msg.content) }}
+                            className="whitespace-pre-wrap text-[14px] leading-relaxed"
+                          />
+                        ) : (
+                          <div className="flex flex-col gap-[8px] items-end">
+                            {msg.attachments && msg.attachments.length > 0 && (
+                              <div className="flex flex-wrap gap-[6px] justify-end">
+                                {msg.attachments.map((name, fileIdx) => (
+                                  <div
+                                    key={`${name}-${fileIdx}`}
+                                    className="max-w-[280px] rounded-[12px] border border-[#54625b] bg-[#2f3733] px-[10px] py-[8px] text-left"
+                                  >
+                                    <div className="text-[10px] uppercase tracking-wide text-[#a7b0aa] mb-[3px]">Tệp đính kèm</div>
+                                    <div className="text-[13px] text-[#e2e7e2] break-words">{name}</div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            {msg.content && (
+                              <div className="whitespace-pre-wrap text-[14px] leading-relaxed rounded-[14px] bg-[#ece9df] text-[#1f2421] px-[16px] py-[10px]">
+                                {msg.content}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))}
-                  {isSending ? (
-                    <div className="max-w-[80%] rounded-[16px] px-[14px] py-[10px] text-[13px] text-[#d8e0da] bg-[#1a231f] border border-[#2a3430]">
-                      Đang trả lời...
+                  {isLoading && (
+                    <div className="flex justify-start">
+                      <div className="max-w-[80%] rounded-[14px] p-[14px] bg-[#1b2320] text-[#cfd5cf] border border-[#28332b]">
+                        <div className="flex items-center gap-[6px]">
+                          <span className="w-[8px] h-[8px] rounded-full bg-[#00d492] animate-bounce" />
+                          <span className="w-[8px] h-[8px] rounded-full bg-[#00d492] animate-bounce [animation-delay:-0.15s]" />
+                          <span className="w-[8px] h-[8px] rounded-full bg-[#00d492] animate-bounce [animation-delay:-0.3s]" />
+                        </div>
+                      </div>
                     </div>
-                  ) : null}
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div
+              className={`w-[580px] max-w-full bg-[#8a8f8c] text-[#1b1f1c] rounded-[14px] p-[12px] shadow-[0_10px_30px_rgba(0,0,0,0.3)] transition-all ${
+                messages.length > 0 ? 'absolute bottom-[24px] z-10' : 'mt-[18px]'
+              }`}
+            >
+              <input
+                type="text"
+                placeholder="Nhập câu hỏi..."
+                className="w-full bg-transparent outline-none text-[14px] text-[#1b1f1c] placeholder:text-[#3a3f3b] mb-[10px]"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && (message.trim() || attachments.length > 0) && !isLoading) {
+                    handleSendMessage(message);
+                  }
+                }}
+                disabled={isLoading}
+              />
+
+              {attachments.length > 0 && (
+                <div className="mb-[8px] flex flex-wrap gap-[6px]">
+                  {attachments.map((file, idx) => (
+                    <div
+                      key={`${file.name}-${idx}`}
+                      className="px-[8px] py-[4px] rounded-[8px] bg-[#f4f6f5] text-[11px] text-[#2b2f2b] flex items-center gap-[6px]"
+                    >
+                      <span className="max-w-[220px] truncate">{file.name}</span>
+                      <button type="button" onClick={() => removeAttachment(idx)} className="font-bold leading-none">
+                        ×
+                      </button>
+                    </div>
+                  ))}
                 </div>
               )}
-            </div>
 
-            <form
-              onSubmit={handleSend}
-              className="mt-[20px] w-full bg-[#8a8f8c] text-[#1b1f1c] rounded-[14px] p-[12px] shadow-[0_10px_30px_rgba(0,0,0,0.3)]"
-            >
-              <textarea
-                value={message}
-                onChange={(event) => setMessage(event.target.value)}
-                placeholder="Nhập câu hỏi..."
-                className="w-full h-[64px] resize-none bg-transparent text-[13px] text-[#1b1f1c] placeholder:text-[#2b2f2b] outline-none"
-              />
               <div className="flex items-center justify-between text-[11px] text-[#2b2f2b]">
                 <div className="flex items-center gap-[14px]">
-                  <div className="w-[22px] h-[22px] rounded-[6px] bg-[#f4f6f5] flex items-center justify-center">+</div>
-                  <div className="flex items-center gap-[6px]">
-                    <span className="w-[12px] h-[12px] rounded-full border border-[#2b2f2b]" />
-                    Đính kèm
-                  </div>
-                  <div className="flex items-center gap-[6px]">
-                    <span className="w-[12px] h-[12px] rounded-full border border-[#2b2f2b]" />
-                    Nghiên cứu
-                  </div>
+                  <button
+                    type="button"
+                    className="w-[22px] h-[22px] rounded-[6px] bg-[#f4f6f5] flex items-center justify-center hover:bg-[#e0e3e1] transition-colors"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    +
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    className="hidden"
+                    multiple
+                    accept=".pdf,.doc,.docx"
+                    onChange={onChooseFiles}
+                  />
+                  <span className="text-[11px]">Đính kèm .pdf/.doc/.docx</span>
                 </div>
                 <div className="flex items-center gap-[8px]">
-                  <div className="w-[22px] h-[22px] rounded-full bg-[#f4f6f5] flex items-center justify-center">🎤</div>
                   <button
-                    type="submit"
-                    disabled={isSending}
-                    className="w-[22px] h-[22px] rounded-full bg-[#f4f6f5] flex items-center justify-center disabled:opacity-60"
+                    className="w-[22px] h-[22px] rounded-full bg-[#f4f6f5] flex items-center justify-center transition-colors disabled:opacity-50 enabled:hover:bg-[#e0e3e1] enabled:cursor-pointer"
+                    disabled={(!message.trim() && attachments.length === 0) || isLoading}
+                    onClick={() => handleSendMessage(message)}
                   >
                     ↑
                   </button>
                 </div>
               </div>
-            </form>
-
-            <div className="mt-[12px] flex flex-wrap items-center justify-center gap-[10px] text-[11px] text-[#cfd5cf]">
-              {['Bài thuốc trị ho khan?', 'Vị thuốc Cam Thảo có tác dụng gì?', 'Hà Thủ Ô là gì?'].map((item) => (
-                <button
-                  type="button"
-                  key={item}
-                  onClick={() => setMessage(item)}
-                  className="px-[10px] py-[6px] rounded-[10px] bg-[#3b433f] border border-[#515b56] hover:border-[#6a756f]"
-                >
-                  {item}
-                </button>
-              ))}
             </div>
+
+            {messages.length === 0 && (
+              <div className="mt-[12px] flex flex-wrap items-center justify-center gap-[10px] text-[11px] text-[#cfd5cf] z-10">
+                {['Bài thuốc trị ho khan?', 'Vị thuốc Cam Thảo có tác dụng gì?', 'Hà Thủ Ô là gì?'].map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => handleSendMessage(item)}
+                    disabled={isLoading}
+                    className="px-[10px] py-[6px] rounded-[10px] bg-[#3b433f] border border-[#515b56] hover:bg-[#4a544f] transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </section>
       </div>
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity">
+          <div className="bg-[#1b2320] border border-[#28332b] rounded-[18px] p-[24px] w-[400px] shadow-2xl transition-all scale-100 opacity-100">
+            <div className="text-[18px] font-semibold text-[#e2e7e2] mb-[12px]">Xóa cuộc trò chuyện?</div>
+            <p className="text-[#a7b0aa] text-[14px] leading-relaxed mb-[24px]">
+              Tất cả nội dung tin nhắn trong cuộc trò chuyện này sẽ bị xóa vĩnh viễn và không thể khôi phục.
+            </p>
+            <div className="flex justify-end gap-[12px]">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeletingId(null);
+                }}
+                className="px-[16px] py-[8px] rounded-[10px] text-[#cfd5cf] hover:bg-[#2a3630] transition-colors text-[14px]"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-[16px] py-[8px] rounded-[10px] bg-[#ff4d4d] text-white hover:bg-[#ff3333] transition-colors text-[14px]"
+              >
+                Xóa ngay
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
