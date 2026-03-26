@@ -498,6 +498,7 @@ export default function ChatPage() {
         <section className="flex-1 relative flex flex-col">
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:84px_100%] opacity-30 pointer-events-none" />
           <header className="relative z-10 h-[54px] shrink-0 border-b border-[#1f2a23] flex items-center justify-between px-[20px] text-[#cfd5cf] text-[13px]">
+
             <div className="flex items-center gap-[12px]">
               <span className="w-[10px] h-[10px] rounded-full bg-[#9adbc1]" />
               YHCT Assistant
