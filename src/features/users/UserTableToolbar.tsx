@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Search, SlidersHorizontal, Download, Plus, X } from "lucide-react";
+import { Search, SlidersHorizontal, Download, Plus } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 

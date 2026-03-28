@@ -4,7 +4,7 @@ import { MOCK_PIPELINE_STEPS } from "@/types/pipeline";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import {
   Download, Braces, Scissors, Layers, Database, ShieldCheck,
-  CheckCircle2, Circle, Loader2, AlertCircle, ChevronRight,
+  Circle, Loader2, ChevronRight,
 } from "lucide-react";
 
 // Map icon name string → Lucide component

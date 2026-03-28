@@ -6,7 +6,6 @@ import { formatNumber } from "@/lib/utils";
 
 interface DocCardProps {
   doc: Document;
-  index?: number;
 }
 
 // ─── helpers ───────────────────────────────
@@ -39,7 +38,7 @@ const TYPE_ICON_COLORS: Record<string, string> = {
  * Thẻ tài liệu dạng card hiển thị trong lưới — bao gồm:
  * checkbox, icon loại, nút 3-chấm, tiêu đề, tác giả, mô tả, tags, badges, footer metrics.
  */
-export const DocCard = ({ doc, index = 0 }: DocCardProps) => {
+export const DocCard = ({ doc }: DocCardProps) => {
   const iconColorClass = TYPE_ICON_COLORS[doc.type] ?? "bg-gray-100 text-gray-500";
 
   return (

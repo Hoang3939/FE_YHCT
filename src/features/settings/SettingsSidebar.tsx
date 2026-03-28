@@ -2,8 +2,8 @@
 
 import React, { useMemo } from "react";
 import { 
-  Settings, Database, Network, Shield, Bell, 
-  Archive, Activity, Hexagon 
+  Settings, Network, Shield, Bell, 
+  Archive, Hexagon 
 } from "lucide-react";
 import { cn, sortConfigItems } from "@/lib/utils";
 

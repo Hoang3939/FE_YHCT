@@ -21,8 +21,8 @@ export const DocGrid = ({ documents }: DocGridProps) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-      {documents.map((doc, index) => (
-        <DocCard key={doc.id} doc={doc} index={index} />
+      {documents.map((doc) => (
+        <DocCard key={doc.id} doc={doc} />
       ))}
     </div>
   );
