@@ -105,9 +105,9 @@ export default function LoginPage() {
                 />
                 Lưu thông tin
               </label>
-              <button type="button" className="text-[#dfe6e1] hover:text-white">
+              <Link href="/forgot-password" className="text-[#dfe6e1] hover:text-white">
                 Quên mật khẩu?
-              </button>
+              </Link>
             </div>
 
             {error ? <div className="text-[12px] text-[#ffb5b5]">{error}</div> : null}
