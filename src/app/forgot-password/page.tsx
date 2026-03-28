@@ -2,49 +2,43 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 const AUTH_BASE_URL = process.env.NEXT_PUBLIC_AUTH_BASE_URL ?? 'http://localhost:3000';
 
-export default function LoginPage() {
-  const router = useRouter();
+export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [remember, setRemember] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError('');
+    setSuccess('');
+
+    if (!email.includes('@')) {
+      setError('Email không hợp lệ.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`${AUTH_BASE_URL}/auth/login`, {
+      const response = await fetch(`${AUTH_BASE_URL}/auth/forgot-password`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-          remember,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
       });
 
+      const payload = await response.json().catch(() => ({}));
+
       if (!response.ok) {
-        const payload = await response.json().catch(() => ({}));
-        throw new Error(payload?.message ?? 'Đăng nhập thất bại');
+        throw new Error(payload?.message ?? 'Gửi yêu cầu thất bại');
       }
 
-      const payload = await response.json();
-      if (payload?.token) {
-        localStorage.setItem('auth_token', payload.token);
-      }
-
-      router.push(payload?.redirect ?? '/chat');
+      setSuccess(payload?.message ?? 'Vui lòng kiểm tra email của bạn.');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Đăng nhập thất bại');
+      setError(err instanceof Error ? err.message : 'Gửi yêu cầu thất bại');
     } finally {
       setIsSubmitting(false);
     }
@@ -59,7 +53,10 @@ export default function LoginPage() {
             LOGO
           </div>
           <div className="mt-[8px]">
-            <h1 className="text-[30px] font-semibold font-['Playfair_Display']">Đăng nhập</h1>
+            <h1 className="text-[30px] font-semibold font-['Playfair_Display']">Quên mật khẩu</h1>
+            <p className="text-[14px] text-[#c5d2c8] mt-[8px]">
+              Nhập email đã đăng ký, chúng tôi sẽ gửi link đặt lại mật khẩu.
+            </p>
           </div>
 
           <form className="flex flex-col gap-[16px] text-[14px]" onSubmit={handleSubmit}>
@@ -74,61 +71,22 @@ export default function LoginPage() {
                 required
               />
             </label>
-            <label className="flex flex-col gap-[8px]">
-              <span className="text-[#c5d2c8]">Mật khẩu</span>
-              <input
-                className="h-[40px] rounded-[8px] bg-[#3b413d] px-[12px] text-white placeholder:text-[#aab3ac] outline-none"
-                placeholder="Nhập mật khẩu"
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                required
-              />
-            </label>
-
-            <div className="flex items-center justify-between text-[12px] text-[#c5d2c8]">
-              <label className="flex items-center gap-[8px]">
-                <input
-                  type="checkbox"
-                  className="accent-[#7de0b0]"
-                  checked={remember}
-                  onChange={(event) => setRemember(event.target.checked)}
-                />
-                Lưu thông tin
-              </label>
-              <Link href="/forgot-password" className="text-[#dfe6e1] hover:text-white">
-                Quên mật khẩu?
-              </Link>
-            </div>
 
             {error ? <div className="text-[12px] text-[#ffb5b5]">{error}</div> : null}
+            {success ? <div className="text-[12px] text-[#9ff5c1]">{success}</div> : null}
 
             <button
               type="submit"
               disabled={isSubmitting}
               className="h-[42px] rounded-[10px] bg-white text-[#1b1f1c] font-semibold disabled:opacity-60"
             >
-              {isSubmitting ? 'Đang đăng nhập...' : 'Đăng Nhập'}
+              {isSubmitting ? 'Đang gửi...' : 'Gửi link đặt lại mật khẩu'}
             </button>
           </form>
 
-          <div className="text-center text-[12px] text-[#aab3ac]">Hoặc đăng nhập với</div>
-
-          <div className="flex flex-col gap-[10px]">
-            <button type="button" className="h-[40px] rounded-[10px] bg-white text-[#1b1f1c] flex items-center justify-center gap-[10px] text-[13px]">
-              <img src="/icons/GoogleLogos.svg" alt="Google" className="w-[16px] h-[16px]" />
-              Đăng nhập với Google
-            </button>
-            <button type="button" className="h-[40px] rounded-[10px] bg-white text-[#1b1f1c] flex items-center justify-center gap-[10px] text-[13px]">
-              <img src="/icons/AppleLogos.svg" alt="Apple" className="w-[16px] h-[16px]" />
-              Đăng nhập với Apple
-            </button>
-          </div>
-
           <div className="text-center text-[12px] text-[#aab3ac]">
-            Bạn chưa có tài khoản?{' '}
-            <Link href="/register" className="text-white hover:underline">
-              Đăng ký
+            <Link href="/login" className="text-white hover:underline">
+              ← Quay lại đăng nhập
             </Link>
           </div>
         </section>
