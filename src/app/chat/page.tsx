@@ -3,7 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
-const AUTH_BASE_URL = process.env.NEXT_PUBLIC_AUTH_BASE_URL ?? 'http://localhost:3000';
+const AUTH_BASE_URL = process.env.NEXT_PUBLIC_AUTH_BASE_URL ?? 'http://localhost:3001';
+const CHAT_BASE_URL = process.env.NEXT_PUBLIC_CHAT_BASE_URL ?? 'http://localhost:3002';
 
 type ChatMessage = {
   role: 'user' | 'assistant';
@@ -36,6 +37,12 @@ export default function ChatPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  const [currentView, setCurrentView] = useState<'chat' | 'settings'>('chat');
+  const [customInstructions, setCustomInstructions] = useState('');
+  const [privacyMode, setPrivacyMode] = useState(true);
+  const [useMemory, setUseMemory] = useState(true);
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
+
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     if (!token) {
@@ -56,6 +63,9 @@ export default function ChatPage() {
           const profile = await profileRes.json();
           setUsername(profile.fullName ?? '');
           setUserEmail(profile.email ?? '');
+          setCustomInstructions(profile.customInstructions ?? '');
+          if (profile.privacyMode !== undefined) setPrivacyMode(profile.privacyMode);
+          if (profile.useMemory !== undefined) setUseMemory(profile.useMemory);
         } else {
           // If profile fails, token might be invalid
           localStorage.removeItem('accessToken');
@@ -65,7 +75,7 @@ export default function ChatPage() {
         }
 
         // Load Conversations
-        const convRes = await fetch(`${AUTH_BASE_URL}/chat/conversations`, {
+        const convRes = await fetch(`${CHAT_BASE_URL}/chat/conversations`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (convRes.ok) {
@@ -90,7 +100,7 @@ export default function ChatPage() {
     const loadMessages = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`${AUTH_BASE_URL}/chat/conversations/${activeConversationId}/messages`, {
+        const response = await fetch(`${CHAT_BASE_URL}/chat/conversations/${activeConversationId}/messages`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (response.ok) {
@@ -159,7 +169,7 @@ export default function ChatPage() {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const res = await fetch(`${AUTH_BASE_URL}/chat/conversations/${deletingId}`, {
+      const res = await fetch(`${CHAT_BASE_URL}/chat/conversations/${deletingId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -227,7 +237,7 @@ export default function ChatPage() {
       if (activeConversationId) formData.append('conversationId', activeConversationId);
       attachments.forEach((file) => formData.append('attachments', file));
 
-      const response = await fetch(`${AUTH_BASE_URL}/chat/message`, {
+      const response = await fetch(`${CHAT_BASE_URL}/chat/message`, {
         method: 'POST',
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -248,7 +258,7 @@ export default function ChatPage() {
       }
 
       // Refresh conversations list
-      const convRes = await fetch(`${AUTH_BASE_URL}/chat/conversations`, {
+      const convRes = await fetch(`${CHAT_BASE_URL}/chat/conversations`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (convRes.ok) {
@@ -279,6 +289,134 @@ export default function ChatPage() {
       );
   };
 
+  const handleSaveSettings = async () => {
+    setIsSavingSettings(true);
+    const token = localStorage.getItem('accessToken');
+    try {
+      const res = await fetch(`${AUTH_BASE_URL}/auth/me`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          fullName: username,
+          customInstructions,
+          privacyMode,
+          useMemory,
+        }),
+      });
+      if (res.ok) {
+        localStorage.setItem('userFullName', username);
+        alert('Lưu cài đặt thành công!');
+      } else {
+        alert('Lưu thất bại!');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Có lỗi xảy ra.');
+    } finally {
+      setIsSavingSettings(false);
+    }
+  };
+
+  const renderSettings = () => (
+    <div className="relative flex-1 bg-[#0c1210] text-[#cfd5cf] overflow-y-auto w-full h-full flex flex-col p-[40px] z-20">
+      <div className="max-w-[700px] w-full mx-auto flex flex-col gap-[40px]">
+        <h2 className="text-[28px] font-['Playfair_Display'] text-[#e2e7e2]">Cài đặt</h2>
+
+        <div className="flex flex-col gap-[24px]">
+          <h3 className="text-[18px] text-[#e2e7e2] font-semibold">Tài khoản</h3>
+          
+          <div className="flex flex-col gap-[12px] border-t border-[#1f2a23] pt-[24px]">
+            <div className="flex w-full items-center text-[14px]">
+              <div className="w-[200px] flex flex-col">
+                <span className="font-semibold text-[#cfd5cf]">Họ và tên</span>
+                <span className="text-[12px] text-[#6f7a73]">Họ và tên thật của bạn</span>
+              </div>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="VD. Cục dàng"
+                className="flex-1 rounded-[8px] bg-[#3b433f] border border-[#54625b] px-[12px] py-[8px] text-[#e2e7e2] outline-none"
+              />
+            </div>
+
+            <div className="flex w-full items-center text-[14px] mt-[12px] border-t border-[#1f2a23] pt-[24px]">
+              <div className="w-[200px] flex flex-col">
+                <span className="font-semibold text-[#cfd5cf]">Email</span>
+                <span className="text-[12px] text-[#6f7a73]">Địa chỉ Email của bạn</span>
+              </div>
+              <input
+                type="text"
+                value={userEmail}
+                disabled
+                placeholder="cucdang@gmail.com"
+                className="flex-1 rounded-[8px] bg-[#3b433f] border border-[#54625b] px-[12px] py-[8px] text-[#8a8f8c] outline-none cursor-not-allowed opacity-70"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-[24px]">
+          <h3 className="text-[18px] text-[#e2e7e2] font-semibold">Tùy chỉnh</h3>
+          
+          <div className="flex flex-col gap-[16px] border-t border-[#1f2a23] pt-[24px]">
+            <div className="flex flex-col gap-[12px] text-[14px]">
+               <div className="flex flex-col">
+                 <span className="font-semibold text-[#cfd5cf]">Hướng dẫn tùy chỉnh</span>
+                 <span className="text-[12px] text-[#6f7a73]">Đưa ra các chỉ dẫn cho AI hoặc chỉ định bất kỳ tùy chọn ưu tiên nào cho kết quả đầu ra.</span>
+               </div>
+               <textarea
+                 value={customInstructions}
+                 onChange={(e) => setCustomInstructions(e.target.value)}
+                 placeholder="VD: Chỉ đưa ra các câu trả lời ngắn gọn"
+                 className="w-full h-[80px] rounded-[8px] bg-[#3b433f] border border-[#54625b] p-[12px] text-[#e2e7e2] outline-none resize-none"
+               />
+            </div>
+
+            <div className="flex w-full items-center justify-between text-[14px] mt-[12px] border-t border-[#1f2a23] pt-[24px]">
+              <div className="flex flex-col">
+                <span className="font-semibold text-[#cfd5cf]">Chế độ riêng tư</span>
+                <span className="text-[12px] text-[#6f7a73]">Ngăn chặn việc sử dụng dữ liệu của bạn để huấn luyện.</span>
+              </div>
+              <button 
+                onClick={() => setPrivacyMode(!privacyMode)}
+                className={`w-[40px] h-[22px] rounded-full relative transition-colors ${privacyMode ? 'bg-[#3b82f6]' : 'bg-[#5b605d]'}`}
+              >
+                <div className={`w-[18px] h-[18px] bg-white rounded-full absolute top-[2px] transition-all ${privacyMode ? 'left-[20px]' : 'left-[2px]'}`} />
+              </button>
+            </div>
+
+            <div className="flex w-full items-center justify-between text-[14px] mt-[12px] border-t border-[#1f2a23] pt-[24px]">
+              <div className="flex flex-col">
+                <span className="font-semibold text-[#cfd5cf]">Sử dụng bộ nhớ</span>
+                <span className="text-[12px] text-[#6f7a73]">Ghi nhớ các cuộc trò chuyện trước đó và những chi tiết bạn đã chia sẻ.</span>
+              </div>
+              <button 
+                onClick={() => setUseMemory(!useMemory)}
+                className={`w-[40px] h-[22px] rounded-full relative transition-colors ${useMemory ? 'bg-[#3b82f6]' : 'bg-[#5b605d]'}`}
+              >
+                <div className={`w-[18px] h-[18px] bg-white rounded-full absolute top-[2px] transition-all ${useMemory ? 'left-[20px]' : 'left-[2px]'}`} />
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div className="mt-[10px] w-full flex justify-end">
+          <button 
+            onClick={handleSaveSettings}
+            disabled={isSavingSettings}
+            className="px-[20px] py-[10px] bg-[#00d492] hover:bg-[#00e39c] text-[#0c1210] font-semibold rounded-[8px] transition-colors disabled:opacity-50"
+          >
+            {isSavingSettings ? 'Đang lưu...' : 'Lưu thay đổi'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <main className="min-h-screen w-full bg-[#2b2f2b] flex items-center justify-center p-[24px]">
       <div className="w-[1200px] max-w-full min-h-[720px] rounded-[18px] overflow-hidden border border-[#1f2a23] bg-[#0c1210] shadow-[0_30px_80px_rgba(0,0,0,0.55)] flex">
@@ -290,6 +428,7 @@ export default function ChatPage() {
                 setMessages([]);
                 setMessage('');
                 setAttachments([]);
+                setCurrentView('chat');
               }}
               className="w-full h-[36px] rounded-[8px] bg-[#5b605d] text-white text-[12px] flex items-center justify-center gap-[8px]"
             >
@@ -302,10 +441,13 @@ export default function ChatPage() {
               <span className="text-[14px]">🔍</span>
               Tìm kiếm (Coming soon)
             </div>
-            <div className="flex items-center gap-[8px]">
+            <button 
+              className={`flex items-center gap-[8px] px-[8px] py-[6px] -mx-[8px] rounded-[6px] transition-colors ${currentView === 'settings' ? 'bg-[#2a3630] text-white' : 'hover:bg-[#1b2320]'}`}
+              onClick={() => setCurrentView('settings')}
+            >
               <span className="text-[14px]">⚙️</span>
               Cài đặt
-            </div>
+            </button>
           </div>
           <div className="mt-[16px] px-[16px] text-[12px] text-[#c4c9c4] flex-1 overflow-y-auto">
             <div className="mb-[12px] font-semibold text-[#a7b0aa]">Cuộc trò chuyện</div>
@@ -313,7 +455,7 @@ export default function ChatPage() {
               {conversations.map((conv) => (
                 <button
                   key={conv.conversationId}
-                  onClick={() => selectConversation(conv.conversationId)}
+                  onClick={() => { selectConversation(conv.conversationId); setCurrentView('chat'); }}
                   className={`w-full text-left px-[10px] py-[8px] rounded-[8px] transition-colors group relative ${
                     activeConversationId === conv.conversationId
                       ? 'bg-[#2a3630] text-white'
@@ -374,6 +516,9 @@ export default function ChatPage() {
             </div>
           </header>
 
+          {currentView === 'settings' ? (
+            renderSettings()
+          ) : (
           <div className="relative flex-1 flex flex-col items-center justify-center text-center text-white px-[24px]">
             {messages.length === 0 ? (
               <div className="z-10">
@@ -519,6 +664,7 @@ export default function ChatPage() {
               </div>
             )}
           </div>
+          )}
         </section>
       </div>
 
