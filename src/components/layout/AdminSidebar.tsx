@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { 
   Home, 
   Users, 
@@ -15,8 +18,10 @@ import {
  * Sidebar điều hướng bên trái cho trang Admin, nền tối, có logo và thông tin admin
  */
 export const AdminSidebar = () => {
+  const pathname = usePathname() || "";
+
   const menuItems = [
-    { name: "Bảng điều khiển", icon: Home, href: "/dashboard", active: true },
+    { name: "Bảng điều khiển", icon: Home, href: "/dashboard" },
     { name: "Quản lý người dùng", icon: Users, href: "/users" },
     { name: "Quản lý tài liệu", icon: FileText, href: "/documents" },
     { name: "Vận hành Pipeline", icon: Activity, href: "/pipeline" },
@@ -41,20 +46,24 @@ export const AdminSidebar = () => {
         <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
           Phân hệ chức năng
         </p>
-        {menuItems.map((item) => (
-          <Link
-            key={item.name}
-            href={item.href}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
-              item.active 
-                ? "bg-emerald-500/10 text-emerald-400 font-medium" 
-                : "hover:bg-gray-800 hover:text-white"
-            }`}
-          >
-            <item.icon size={20} className={item.active ? "text-emerald-400" : "text-gray-400"} />
-            {item.name}
-          </Link>
-        ))}
+        {menuItems.map((item) => {
+          const isActive = pathname.startsWith(item.href);
+
+          return (
+            <Link
+              key={item.name}
+              href={item.href}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                isActive 
+                  ? "bg-emerald-500/10 text-emerald-400 font-medium" 
+                  : "hover:bg-gray-800 hover:text-white"
+              }`}
+            >
+              <item.icon size={20} className={isActive ? "text-emerald-400" : "text-gray-400"} />
+              {item.name}
+            </Link>
+          );
+        })}
 
         {/* System Stats in Sidebar */}
         <div className="mt-8 px-3">
