@@ -1,6 +1,6 @@
 import React from "react";
 import { Card } from "@/components/ui/Card";
-import { MOCK_PIPELINE_STATS } from "@/types/pipeline";
+import type { PipelineStats } from "@/types/pipeline";
 import { formatNumber } from "@/lib/utils";
 import {
   Zap, CheckCircle2, XCircle, Clock3,
@@ -19,8 +19,18 @@ interface StatTile {
  * PipelineSummary Component
  * 8 thẻ thống kê tổng quan pipeline: jobs, chunks, tokens, tốc độ, tỉ lệ thành công
  */
-export const PipelineSummary = () => {
-  const s = MOCK_PIPELINE_STATS;
+export const PipelineSummary = ({ stats }: { stats?: PipelineStats | null }) => {
+  // Fallback to zeros if stats is not provided yet
+  const s = stats || {
+    jobsToday: 0,
+    completed: 0,
+    failed: 0,
+    queued: 0,
+    chunksCreated: 0,
+    tokensProcessed: "0",
+    avgTimeSeconds: 0,
+    successRate: 0,
+  };
 
   const tiles: StatTile[] = [
     { label: "Jobs hôm nay",         value: String(s.jobsToday),            icon: Zap,          color: "text-slate-600",   bg: "bg-slate-100"   },

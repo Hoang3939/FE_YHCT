@@ -2,8 +2,7 @@ import React from "react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { ProgressBar } from "@/components/ui/ProgressBar";
-import { MOCK_JOBS } from "@/types/pipeline";
-import type { JobStatus } from "@/types/pipeline";
+import type { Job, JobStatus } from "@/types/pipeline";
 import { formatNumber } from "@/lib/utils";
 import { RotateCcw, AlertTriangle } from "lucide-react";
 
@@ -38,14 +37,14 @@ const JOB_TYPE_LABELS = {
  * JobQueueTable Component
  * Bảng danh sách jobs với progress bar màu, worker, docs/chunks và action
  */
-export const JobQueueTable = () => (
+export const JobQueueTable = ({ jobs = [] }: { jobs?: Job[] }) => (
   <Card className="p-5">
     <div className="flex items-center justify-between mb-4">
       <div>
         <h3 className="text-sm font-bold text-gray-900">Hàng chờ & Lịch sử Job</h3>
         <p className="text-xs text-gray-400">Các tiến trình xử lý tài liệu đang chạy và chờ</p>
       </div>
-      <span className="text-xs text-gray-500">{MOCK_JOBS.length} jobs</span>
+      <span className="text-xs text-gray-500">{jobs.length} jobs</span>
     </div>
 
     <div className="overflow-x-auto">
@@ -60,14 +59,14 @@ export const JobQueueTable = () => (
           </tr>
         </thead>
         <tbody>
-          {MOCK_JOBS.length === 0 && (
+          {jobs.length === 0 && (
             <tr>
               <td colSpan={7} className="py-10 text-center text-sm text-gray-400">
                 Không có job nào.
               </td>
             </tr>
           )}
-          {MOCK_JOBS.map((job) => (
+          {jobs.map((job) => (
             <tr key={job.id} className="border-b border-gray-50 hover:bg-gray-50/60 transition-colors">
               {/* Tên */}
               <td className="py-3 px-3 max-w-[240px]">
