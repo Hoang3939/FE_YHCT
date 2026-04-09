@@ -1,12 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, ChevronRight } from "lucide-react";
-import { FEATURED_BOOKS, TRENDING_BOOKS, CATEGORIES } from "@/data/mockBooks";
-import type { Book } from "@/data/mockBooks";
+import { Search, Loader2 } from "lucide-react";
 
-function BookCardFeatured({ book }: { book: Book }) {
+const CATALOG_BASE_URL = process.env.NEXT_PUBLIC_CATALOG_BASE_URL || "http://localhost:3004";
+
+interface BookItem {
+  id: string;
+  title: string;
+  author: string | null;
+  category: string | null;
+  description: string | null;
+  coverImage: string | null;
+  viewCount: number;
+  isPublished: boolean;
+  createdAt: string;
+}
+
+const CATEGORIES = [
+  "Tất cả",
+  "Dược học",
+  "Châm cứu",
+  "Nội khoa",
+  "Ngoại khoa",
+  "Phụ khoa",
+  "Nhi khoa",
+];
+
+function BookCardFeatured({ book }: { book: BookItem }) {
   return (
     <Link
       href={`/library/${book.id}`}
@@ -17,30 +39,26 @@ function BookCardFeatured({ book }: { book: Book }) {
           {book.title}
         </h3>
         <p className="self-stretch text-neutral-500 text-base font-normal font-sans">
-          {book.author}
+          {book.author || "Không rõ tác giả"}
         </p>
-        <p className="self-stretch text-zinc-500 text-sm font-medium font-sans">
-          {book.year}
-        </p>
-        <p className="w-80 h-10 text-neutral-600 text-sm font-medium font-sans line-clamp-2">
-          {book.description}
-        </p>
+        {book.description && (
+          <p className="w-80 h-10 text-neutral-600 text-sm font-medium font-sans line-clamp-2">
+            {book.description}
+          </p>
+        )}
         <div className="flex justify-start items-center gap-2.5">
-          {book.tags.map((tag) => (
-            <span
-              key={tag}
-              className="px-2.5 py-0.5 bg-emerald-50 rounded-[20px] text-gray-600 text-sm font-medium font-sans"
-            >
-              {tag}
+          {book.category && (
+            <span className="px-2.5 py-0.5 bg-emerald-50 rounded-[20px] text-gray-600 text-sm font-medium font-sans">
+              {book.category}
             </span>
-          ))}
+          )}
         </div>
       </div>
     </Link>
   );
 }
 
-function BookCardCompact({ book }: { book: Book }) {
+function BookCardCompact({ book }: { book: BookItem }) {
   return (
     <Link
       href={`/library/${book.id}`}
@@ -51,20 +69,14 @@ function BookCardCompact({ book }: { book: Book }) {
           {book.title}
         </h3>
         <p className="self-stretch text-neutral-500 text-base font-normal font-sans">
-          {book.author}
-        </p>
-        <p className="self-stretch text-zinc-500 text-sm font-medium font-sans">
-          {book.year}
+          {book.author || "Không rõ tác giả"}
         </p>
         <div className="flex justify-start items-center gap-2.5">
-          {book.tags.map((tag) => (
-            <span
-              key={tag}
-              className="px-2.5 py-0.5 bg-emerald-50 rounded-[20px] text-gray-600 text-sm font-medium font-sans"
-            >
-              {tag}
+          {book.category && (
+            <span className="px-2.5 py-0.5 bg-emerald-50 rounded-[20px] text-gray-600 text-sm font-medium font-sans">
+              {book.category}
             </span>
-          ))}
+          )}
         </div>
       </div>
     </Link>
@@ -74,6 +86,39 @@ function BookCardCompact({ book }: { book: Book }) {
 export default function LibraryPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [books, setBooks] = useState<BookItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch books from API
+  useEffect(() => {
+    const fetchBooks = async () => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams();
+        if (searchQuery) params.set("search", searchQuery);
+        if (activeCategory && activeCategory !== "Tất cả") {
+          params.set("category", activeCategory);
+        }
+
+        const url = `${CATALOG_BASE_URL}/ebooks${params.toString() ? `?${params}` : ""}`;
+        const res = await fetch(url);
+        const json = await res.json();
+        setBooks(json.data || []);
+      } catch (err) {
+        console.error("Failed to fetch books:", err);
+        setBooks([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const debounce = setTimeout(fetchBooks, 300);
+    return () => clearTimeout(debounce);
+  }, [searchQuery, activeCategory]);
+
+  // Split into featured (first 3) and rest
+  const featuredBooks = books.slice(0, 3);
+  const restBooks = books.slice(3);
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -100,16 +145,6 @@ export default function LibraryPage() {
             className="text-sm font-normal font-sans leading-5 bg-transparent outline-none text-gray-900 placeholder:text-gray-400 w-[580px]"
           />
         </div>
-        <button className="w-5 h-5 text-gray-400 hover:text-gray-600 transition-colors">
-          <svg
-            viewBox="0 0 20 20"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.5}
-          >
-            <path d="M3 5h14M5 10h10M7 15h6" strokeLinecap="round" />
-          </svg>
-        </button>
       </div>
 
       {/* Category Pills */}
@@ -133,55 +168,68 @@ export default function LibraryPage() {
         ))}
       </div>
 
-      {/* Featured Section */}
-      <div className="w-[1280px] mt-[120px] flex flex-col justify-start items-start gap-14">
-        <div className="self-stretch flex justify-between items-center">
-          <div className="w-80 flex flex-col justify-start items-start gap-2.5">
-            <span className="text-green-800 text-xl font-medium font-sans">
-              NỔI BẬT
-            </span>
-            <h2 className="text-black text-4xl font-semibold font-display">
-              Tác phẩm kinh điển
-            </h2>
-          </div>
-          <button className="flex justify-start items-center gap-2 hover:opacity-70 transition-opacity">
-            <span className="text-black text-base font-medium font-sans leading-5">
-              Xem tất cả
-            </span>
-            <ChevronRight className="w-5 h-5 text-black" />
-          </button>
+      {/* Loading */}
+      {loading && (
+        <div className="mt-20 flex items-center gap-3">
+          <Loader2 className="w-6 h-6 text-emerald-800 animate-spin" />
+          <span className="text-gray-500">Đang tải sách...</span>
         </div>
-        <div className="self-stretch flex justify-start items-center gap-14">
-          {FEATURED_BOOKS.map((book) => (
-            <BookCardFeatured key={book.id} book={book} />
-          ))}
-        </div>
-      </div>
+      )}
 
-      {/* Trending Section */}
-      <div className="w-[1280px] mt-[120px] mb-[100px] flex flex-col justify-start items-start gap-14">
-        <div className="self-stretch flex justify-between items-center">
-          <div className="w-80 flex flex-col justify-start items-start gap-2.5">
-            <span className="text-green-800 text-xl font-medium font-sans">
-              XU HƯỚNG
-            </span>
-            <h2 className="text-black text-4xl font-semibold font-display">
-              Tác phẩm nổi bật
-            </h2>
+      {/* No results */}
+      {!loading && books.length === 0 && (
+        <div className="mt-20 text-center">
+          <p className="text-gray-500 text-lg">Không tìm thấy sách nào</p>
+          <p className="text-gray-400 text-sm mt-2">Thử thay đổi từ khóa tìm kiếm hoặc danh mục</p>
+        </div>
+      )}
+
+      {/* Featured Section */}
+      {!loading && featuredBooks.length > 0 && (
+        <div className="w-[1280px] mt-[120px] flex flex-col justify-start items-start gap-14">
+          <div className="self-stretch flex justify-between items-center">
+            <div className="w-80 flex flex-col justify-start items-start gap-2.5">
+              <span className="text-green-800 text-xl font-medium font-sans">
+                NỔI BẬT
+              </span>
+              <h2 className="text-black text-4xl font-semibold font-display">
+                Tác phẩm kinh điển
+              </h2>
+            </div>
           </div>
-          <button className="flex justify-start items-center gap-2 hover:opacity-70 transition-opacity">
-            <span className="text-black text-base font-medium font-sans leading-5">
-              Xem tất cả
-            </span>
-            <ChevronRight className="w-5 h-5 text-black" />
-          </button>
+          <div className="self-stretch flex justify-start items-center gap-14 flex-wrap">
+            {featuredBooks.map((book) => (
+              <BookCardFeatured key={book.id} book={book} />
+            ))}
+          </div>
         </div>
-        <div className="self-stretch flex justify-start items-center gap-6">
-          {TRENDING_BOOKS.map((book) => (
-            <BookCardCompact key={book.id} book={book} />
-          ))}
+      )}
+
+      {/* More Books Section */}
+      {!loading && restBooks.length > 0 && (
+        <div className="w-[1280px] mt-[120px] mb-[100px] flex flex-col justify-start items-start gap-14">
+          <div className="self-stretch flex justify-between items-center">
+            <div className="w-80 flex flex-col justify-start items-start gap-2.5">
+              <span className="text-green-800 text-xl font-medium font-sans">
+                TẤT CẢ
+              </span>
+              <h2 className="text-black text-4xl font-semibold font-display">
+                Tác phẩm khác
+              </h2>
+            </div>
+          </div>
+          <div className="self-stretch flex justify-start items-center gap-6 flex-wrap">
+            {restBooks.map((book) => (
+              <BookCardCompact key={book.id} book={book} />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Bottom spacer */}
+      {!loading && books.length > 0 && restBooks.length === 0 && (
+        <div className="mb-[100px]" />
+      )}
     </div>
   );
 }
