@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
   Settings,
-  Maximize2,
   Bookmark,
   Menu,
   X,
@@ -15,34 +14,111 @@ import {
   Moon,
   Minus,
   Plus,
-  ChevronRight,
+  Loader2,
 } from "lucide-react";
-import { getBookById } from "@/data/mockBooks";
-import { notFound } from "next/navigation";
+
+const CATALOG_BASE_URL = process.env.NEXT_PUBLIC_CATALOG_BASE_URL || "http://localhost:3004";
+
+interface TocItem {
+  id: string;
+  label: string;
+  href: string;
+  subitems?: TocItem[];
+}
 
 export default function BookReaderPage({
   params,
 }: {
   params: { id: string };
 }) {
-  const book = getBookById(params.id);
-  if (!book) return notFound();
-
-  const [activeChapter, setActiveChapter] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
   const [fontSize, setFontSize] = useState(18);
   const [theme, setTheme] = useState<"light" | "sepia" | "dark">("light");
+  const [toc, setToc] = useState<TocItem[]>([]);
+  const [activeChapterHref, setActiveChapterHref] = useState<string>("");
+  const [bookTitle, setBookTitle] = useState("Đang tải...");
+  const [epubUrl, setEpubUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showSidebar, setShowSidebar] = useState(true);
 
-  const currentChapter = book.chapters[activeChapter];
-  const hasNextChapter = activeChapter < book.chapters.length - 1;
+  const readerRef = useRef<HTMLDivElement>(null);
+
+  // Fetch EPUB signed URL
+  useEffect(() => {
+    const fetchReadUrl = async () => {
+      try {
+        const res = await fetch(`${CATALOG_BASE_URL}/ebooks/${params.id}/read-url`);
+        if (!res.ok) throw new Error("Không thể lấy URL đọc sách");
+        const json = await res.json();
+        setEpubUrl(json.data.signedUrl);
+        setBookTitle(json.data.title || "Untitled");
+        setLoading(false);
+      } catch (err: any) {
+        setError(err.message || "Lỗi khi tải sách");
+        setLoading(false);
+      }
+    };
+    fetchReadUrl();
+  }, [params.id]);
+
+  const handleTocLoaded = (loadedToc: TocItem[]) => {
+    setToc(loadedToc);
+    if (loadedToc.length > 0) {
+      setActiveChapterHref(loadedToc[0].href);
+    }
+  };
+
+  const handleChapterClick = (href: string) => {
+    setActiveChapterHref(href);
+    // Navigate epub.js to the chapter
+    if (readerRef.current) {
+      const goToChapter = (readerRef.current as any).__goToChapter;
+      if (goToChapter) goToChapter(href);
+    }
+  };
+
+  const handleLocationChange = (location: { chapter: string; progress: number }) => {
+    if (location.chapter) {
+      setActiveChapterHref(location.chapter);
+    }
+  };
 
   const themeStyles = {
-    light: { bg: "bg-white", text: "text-black" },
-    sepia: { bg: "bg-[#f5f0e8]", text: "text-[#5b4636]" },
-    dark: { bg: "bg-[#1a1a2e]", text: "text-gray-300" },
+    light: { bg: "bg-white", text: "text-black", sidebar: "bg-white" },
+    sepia: { bg: "bg-[#f5f0e8]", text: "text-[#5b4636]", sidebar: "bg-[#f5f0e8]" },
+    dark: { bg: "bg-[#1a1a2e]", text: "text-gray-300", sidebar: "bg-[#16213e]" },
   };
 
   const currentTheme = themeStyles[theme];
+
+  if (loading) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center bg-white">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-10 h-10 text-emerald-800 animate-spin" />
+          <p className="text-gray-500 text-lg font-medium">Đang tải sách...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <p className="text-red-500 text-xl font-semibold mb-2">Không thể mở sách</p>
+          <p className="text-gray-500 mb-6">{error}</p>
+          <Link
+            href={`/library/${params.id}`}
+            className="px-6 py-3 bg-emerald-800 text-white rounded-xl hover:bg-emerald-900 transition-colors"
+          >
+            Quay lại
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`w-full h-screen flex flex-col ${currentTheme.bg} overflow-hidden`}>
@@ -51,25 +127,28 @@ export default function BookReaderPage({
         <div className="w-full h-full px-[26px] flex justify-between items-center">
           <div className="flex justify-start items-center gap-6">
             <Link
-              href={`/library/${book.id}`}
+              href={`/library/${params.id}`}
               className="w-6 h-6 flex items-center justify-center hover:opacity-70 transition-opacity"
             >
               <ArrowLeft className="w-4 h-4 text-black" strokeWidth={2} />
             </Link>
             <div className="w-10 h-0 border-l border-gray-200 rotate-0 h-10" />
             <span className="text-black text-xl font-bold font-display uppercase leading-3 tracking-wide">
-              {book.title}
+              {bookTitle}
             </span>
           </div>
           <div className="flex justify-start items-center gap-5">
+            <button
+              onClick={() => setShowSidebar(!showSidebar)}
+              className="w-6 h-6 flex items-center justify-center hover:opacity-70 transition-opacity"
+            >
+              <Menu className="w-5 h-5 text-black" strokeWidth={2} />
+            </button>
             <button
               onClick={() => setShowSettings(!showSettings)}
               className="w-6 h-6 flex items-center justify-center hover:opacity-70 transition-opacity"
             >
               <Settings className="w-5 h-5 text-black" strokeWidth={2} />
-            </button>
-            <button className="w-6 h-6 flex items-center justify-center hover:opacity-70 transition-opacity">
-              <Maximize2 className="w-5 h-5 text-black" strokeWidth={2} />
             </button>
             <button className="w-6 h-6 flex items-center justify-center hover:opacity-70 transition-opacity">
               <Bookmark className="w-5 h-5 text-black" strokeWidth={2} />
@@ -80,99 +159,70 @@ export default function BookReaderPage({
 
       <div className="flex flex-1 overflow-hidden">
         {/* Left Sidebar - Table of Contents */}
-        <aside className="w-96 bg-white border-r border-b border-gray-200 flex-shrink-0 overflow-y-auto">
-          <div className="px-[26px] pt-[33px] pb-4 flex justify-between items-center">
-            <span className="text-green-800 text-lg font-semibold font-sans uppercase leading-3 tracking-wide">
-              MỤC LỤC
-            </span>
-            <Menu className="w-6 h-6 text-black cursor-pointer" strokeWidth={2} />
-          </div>
-          <div className="w-80 mx-[26px] flex flex-col gap-3.5">
-            {book.chapters.map((chapter, i) => (
-              <button
-                key={chapter.id}
-                onClick={() => setActiveChapter(i)}
-                className={`self-stretch h-16 pl-3.5 pr-2.5 py-2.5 rounded-[10px] flex flex-col justify-center items-start gap-2 text-left transition-colors ${
-                  i === activeChapter
-                    ? "bg-emerald-50"
-                    : "bg-white hover:bg-gray-50"
-                }`}
-              >
-                <span
-                  className={`text-sm font-medium font-sans ${
-                    i === activeChapter ? "text-gray-600" : "text-neutral-400"
-                  }`}
-                >
-                  Chương {chapter.id}
-                </span>
-                <span
-                  className={`text-lg font-sans ${
-                    i === activeChapter
-                      ? "font-semibold text-gray-600"
-                      : "font-medium text-stone-500"
-                  }`}
-                >
-                  {chapter.title}
-                </span>
-              </button>
-            ))}
-          </div>
-        </aside>
-
-        {/* Main Content */}
-        <main className="flex-1 overflow-y-auto">
-          <div className="max-w-[960px] mx-auto px-8 py-[72px]">
-            {/* Chapter Title */}
-            <h1 className={`text-center text-3xl font-bold font-display uppercase leading-relaxed tracking-wide mb-12 ${currentTheme.text}`}>
-              Chương {currentChapter.id}: {currentChapter.title}
-            </h1>
-
-            {/* Chapter Content */}
-            <div
-              className={`font-sans uppercase leading-6 tracking-wide whitespace-pre-line ${currentTheme.text}`}
-              style={{ fontSize: `${fontSize}px` }}
-            >
-              {currentChapter.content}
-              {"\n\n"}
-              {currentChapter.content}
-              {"\n\n"}
-              {currentChapter.content}
+        {showSidebar && (
+          <aside className={`w-96 ${currentTheme.sidebar} border-r border-b border-gray-200 flex-shrink-0 overflow-y-auto`}>
+            <div className="px-[26px] pt-[33px] pb-4 flex justify-between items-center">
+              <span className="text-green-800 text-lg font-semibold font-sans uppercase leading-3 tracking-wide">
+                MỤC LỤC
+              </span>
             </div>
+            <div className="w-80 mx-[26px] flex flex-col gap-2">
+              {toc.length > 0 ? (
+                toc.map((item, i) => (
+                  <button
+                    key={item.id || i}
+                    onClick={() => handleChapterClick(item.href)}
+                    className={`self-stretch px-3.5 py-3 rounded-[10px] flex flex-col justify-center items-start text-left transition-colors ${
+                      activeChapterHref === item.href
+                        ? "bg-emerald-50"
+                        : "bg-transparent hover:bg-gray-50"
+                    }`}
+                  >
+                    <span
+                      className={`text-base font-sans ${
+                        activeChapterHref === item.href
+                          ? "font-semibold text-gray-700"
+                          : "font-medium text-stone-500"
+                      }`}
+                    >
+                      {item.label}
+                    </span>
+                  </button>
+                ))
+              ) : (
+                <p className="text-gray-400 text-sm px-3.5 py-2">
+                  Không có mục lục
+                </p>
+              )}
+            </div>
+          </aside>
+        )}
 
-            {/* Divider */}
-            <div className="w-full h-0 border-t border-zinc-700/20 mt-16" />
-
-            {/* Next Chapter Button */}
-            {hasNextChapter && (
-              <div className="flex justify-end mt-8 mb-12">
-                <button
-                  onClick={() => setActiveChapter(activeChapter + 1)}
-                  className="h-11 pl-5 pr-4 py-2.5 bg-white rounded-[10px] outline outline-1 outline-offset-[-1px] outline-zinc-300 flex items-center gap-3 hover:bg-gray-50 transition-colors"
-                >
-                  <span className="text-black text-sm font-normal font-sans leading-6">
-                    Chương tiếp
-                  </span>
-                  <ChevronRight className="w-4 h-4 text-black" />
-                </button>
-              </div>
-            )}
-          </div>
+        {/* Main Content - EPUB Reader */}
+        <main className="flex-1 overflow-hidden">
+          {epubUrl && (
+            <div ref={readerRef} className="w-full h-full">
+              <EpubReaderLazy
+                url={epubUrl}
+                theme={theme}
+                fontSize={fontSize}
+                onTocLoaded={handleTocLoaded}
+                onLocationChange={handleLocationChange}
+              />
+            </div>
+          )}
         </main>
 
         {/* Settings Panel */}
         {showSettings && (
           <>
-            {/* Overlay */}
             <div
               className="fixed inset-0 bg-neutral-700/50 z-40"
               onClick={() => setShowSettings(false)}
             />
-
-            {/* Settings Drawer */}
             <div className="fixed right-0 top-0 w-96 h-full bg-white outline outline-2 outline-gray-200 z-50 overflow-y-auto">
               <div className="pl-9 pr-8 pt-14 pb-12">
                 <div className="flex flex-col gap-16">
-                  {/* Header */}
                   <div className="flex justify-between items-center">
                     <h2 className="text-black text-3xl font-semibold font-display">
                       Cài đặt đọc
@@ -193,28 +243,20 @@ export default function BookReaderPage({
                       </span>
                       <div className="self-stretch flex justify-start items-center gap-7">
                         <button
-                          onClick={() =>
-                            setFontSize(Math.max(12, fontSize - 2))
-                          }
+                          onClick={() => setFontSize(Math.max(12, fontSize - 2))}
                           className="w-28 h-14 bg-white rounded-[5px] outline outline-1 outline-offset-[-1px] outline-gray-200 flex items-center justify-center gap-1 hover:bg-gray-50 transition-colors"
                         >
-                          <span className="text-black text-lg font-medium">
-                            T
-                          </span>
+                          <span className="text-black text-lg font-medium">T</span>
                           <Minus className="w-3 h-3 text-black" />
                         </button>
                         <span className="text-black text-3xl font-semibold font-sans">
                           {fontSize}px
                         </span>
                         <button
-                          onClick={() =>
-                            setFontSize(Math.min(32, fontSize + 2))
-                          }
+                          onClick={() => setFontSize(Math.min(32, fontSize + 2))}
                           className="w-28 h-14 bg-white rounded-[5px] outline outline-1 outline-offset-[-1px] outline-gray-200 flex items-center justify-center gap-1 hover:bg-gray-50 transition-colors"
                         >
-                          <span className="text-black text-lg font-medium">
-                            T
-                          </span>
+                          <span className="text-black text-lg font-medium">T</span>
                           <Plus className="w-3 h-3 text-black" />
                         </button>
                       </div>
@@ -226,63 +268,34 @@ export default function BookReaderPage({
                         GIAO DIỆN
                       </span>
                       <div className="self-stretch flex justify-start items-center gap-5">
-                        <button
-                          onClick={() => setTheme("light")}
-                          className={`w-28 h-24 px-7 py-3.5 rounded-[5px] outline outline-2 outline-offset-[-2px] flex flex-col items-center justify-center gap-3 transition-colors ${
-                            theme === "light"
-                              ? "bg-gray-100 outline-teal-950"
-                              : "bg-white outline-gray-200 hover:bg-gray-50"
-                          }`}
-                        >
-                          <Sun className="w-6 h-6 text-black" strokeWidth={2} />
-                          <span className="text-black text-lg font-medium font-sans leading-3 tracking-wide">
-                            Sáng
-                          </span>
-                        </button>
-                        <button
-                          onClick={() => setTheme("sepia")}
-                          className={`w-28 h-24 px-7 py-3.5 rounded-[5px] outline outline-2 outline-offset-[-2px] flex flex-col items-center justify-center gap-3 transition-colors ${
-                            theme === "sepia"
-                              ? "bg-gray-100 outline-teal-950"
-                              : "bg-white outline-gray-200 hover:bg-gray-50"
-                          }`}
-                        >
-                          <Monitor
-                            className="w-6 h-6 text-black"
-                            strokeWidth={2}
-                          />
-                          <span className="text-black text-lg font-medium font-sans leading-3 tracking-wide">
-                            Ngà
-                          </span>
-                        </button>
-                        <button
-                          onClick={() => setTheme("dark")}
-                          className={`w-28 h-24 px-7 py-3.5 rounded-[5px] outline outline-2 outline-offset-[-2px] flex flex-col items-center justify-center gap-3 transition-colors ${
-                            theme === "dark"
-                              ? "bg-gray-100 outline-teal-950"
-                              : "bg-white outline-gray-200 hover:bg-gray-50"
-                          }`}
-                        >
-                          <Moon
-                            className="w-6 h-6 text-black"
-                            strokeWidth={2}
-                          />
-                          <span className="text-black text-lg font-medium font-sans leading-3 tracking-wide">
-                            Tối
-                          </span>
-                        </button>
+                        {([
+                          { key: "light" as const, icon: Sun, label: "Sáng" },
+                          { key: "sepia" as const, icon: Monitor, label: "Ngà" },
+                          { key: "dark" as const, icon: Moon, label: "Tối" },
+                        ]).map(({ key, icon: Icon, label }) => (
+                          <button
+                            key={key}
+                            onClick={() => setTheme(key)}
+                            className={`w-28 h-24 px-7 py-3.5 rounded-[5px] outline outline-2 outline-offset-[-2px] flex flex-col items-center justify-center gap-3 transition-colors ${
+                              theme === key
+                                ? "bg-gray-100 outline-teal-950"
+                                : "bg-white outline-gray-200 hover:bg-gray-50"
+                            }`}
+                          >
+                            <Icon className="w-6 h-6 text-black" strokeWidth={2} />
+                            <span className="text-black text-lg font-medium font-sans leading-3 tracking-wide">
+                              {label}
+                            </span>
+                          </button>
+                        ))}
                       </div>
                     </div>
 
-                    {/* Divider */}
                     <div className="w-80 h-0 border-t border-gray-200" />
 
                     {/* Search in book */}
                     <button className="self-stretch h-14 px-20 py-4 bg-gray-100 rounded-[5px] flex items-center justify-center gap-3 hover:bg-gray-200 transition-colors">
-                      <Search
-                        className="w-5 h-5 text-teal-950"
-                        strokeWidth={2}
-                      />
+                      <Search className="w-5 h-5 text-teal-950" strokeWidth={2} />
                       <span className="text-center text-teal-950 text-xl font-semibold font-sans leading-3 tracking-wide">
                         Tìm trong sách
                       </span>
@@ -290,10 +303,7 @@ export default function BookReaderPage({
 
                     {/* Bookmarks */}
                     <button className="self-stretch h-14 px-20 py-4 bg-gray-100 rounded-[5px] flex items-center justify-center gap-3 hover:bg-gray-200 transition-colors">
-                      <Bookmark
-                        className="w-5 h-5 text-teal-950"
-                        strokeWidth={2}
-                      />
+                      <Bookmark className="w-5 h-5 text-teal-950" strokeWidth={2} />
                       <span className="text-center text-teal-950 text-xl font-semibold font-sans leading-3 tracking-wide">
                         Danh sách đánh dấu
                       </span>
@@ -306,5 +316,49 @@ export default function BookReaderPage({
         )}
       </div>
     </div>
+  );
+}
+
+// Lazy-loaded EPUB reader to avoid SSR issues
+function EpubReaderLazy({
+  url,
+  theme,
+  fontSize,
+  onTocLoaded,
+  onLocationChange,
+}: {
+  url: string;
+  theme: "light" | "sepia" | "dark";
+  fontSize: number;
+  onTocLoaded: (toc: TocItem[]) => void;
+  onLocationChange: (location: { chapter: string; progress: number }) => void;
+}) {
+  const [EpubReader, setEpubReader] = useState<any>(null);
+
+  useEffect(() => {
+    import("@/components/EpubReader").then((mod) => {
+      setEpubReader(() => mod.default);
+    });
+  }, []);
+
+  if (!EpubReader) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-3 border-emerald-800 border-t-transparent rounded-full animate-spin" />
+          <p className="text-gray-500 text-sm">Đang khởi tạo trình đọc...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <EpubReader
+      url={url}
+      theme={theme}
+      fontSize={fontSize}
+      onTocLoaded={onTocLoaded}
+      onLocationChange={onLocationChange}
+    />
   );
 }

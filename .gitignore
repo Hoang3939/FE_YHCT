@@ -34,3 +34,8 @@ test-results/
 
 # Misc
 *.tsbuildinfo
+
+.roo
+.rooignore
+.roomodes
+roo-code-settings-optimized.json
