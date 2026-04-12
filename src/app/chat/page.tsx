@@ -339,6 +339,7 @@ export default function ChatPage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="VD. Cục dàng"
+                aria-label="Họ và tên"
                 className="flex-1 rounded-[8px] bg-[#3b433f] border border-[#54625b] px-[12px] py-[8px] text-[#e2e7e2] outline-none"
               />
             </div>
@@ -353,6 +354,7 @@ export default function ChatPage() {
                 value={userEmail}
                 disabled
                 placeholder="cucdang@gmail.com"
+                aria-label="Email"
                 className="flex-1 rounded-[8px] bg-[#3b433f] border border-[#54625b] px-[12px] py-[8px] text-[#8a8f8c] outline-none cursor-not-allowed opacity-70"
               />
             </div>
@@ -372,6 +374,7 @@ export default function ChatPage() {
                  value={customInstructions}
                  onChange={(e) => setCustomInstructions(e.target.value)}
                  placeholder="VD: Chỉ đưa ra các câu trả lời ngắn gọn"
+                 aria-label="Hướng dẫn tùy chỉnh"
                  className="w-full h-[80px] rounded-[8px] bg-[#3b433f] border border-[#54625b] p-[12px] text-[#e2e7e2] outline-none resize-none"
                />
             </div>
@@ -381,12 +384,17 @@ export default function ChatPage() {
                 <span className="font-semibold text-[#cfd5cf]">Chế độ riêng tư</span>
                 <span className="text-[12px] text-[#6f7a73]">Ngăn chặn việc sử dụng dữ liệu của bạn để huấn luyện.</span>
               </div>
-              <button 
+              <div
                 onClick={() => setPrivacyMode(!privacyMode)}
-                className={`w-[40px] h-[22px] rounded-full relative transition-colors ${privacyMode ? 'bg-[#3b82f6]' : 'bg-[#5b605d]'}`}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setPrivacyMode(!privacyMode); } }}
+                aria-label={privacyMode ? 'Tắt chế độ riêng tư' : 'Bật chế độ riêng tư'}
+                role="switch"
+                aria-checked={privacyMode ? "true" : "false"}
+                tabIndex={0}
+                className={`w-[40px] h-[22px] rounded-full relative transition-colors cursor-pointer ${privacyMode ? 'bg-[#3b82f6]' : 'bg-[#5b605d]'}`}
               >
                 <div className={`w-[18px] h-[18px] bg-white rounded-full absolute top-[2px] transition-all ${privacyMode ? 'left-[20px]' : 'left-[2px]'}`} />
-              </button>
+              </div>
             </div>
 
             <div className="flex w-full items-center justify-between text-[14px] mt-[12px] border-t border-[#1f2a23] pt-[24px]">
@@ -394,12 +402,17 @@ export default function ChatPage() {
                 <span className="font-semibold text-[#cfd5cf]">Sử dụng bộ nhớ</span>
                 <span className="text-[12px] text-[#6f7a73]">Ghi nhớ các cuộc trò chuyện trước đó và những chi tiết bạn đã chia sẻ.</span>
               </div>
-              <button 
+              <div
                 onClick={() => setUseMemory(!useMemory)}
-                className={`w-[40px] h-[22px] rounded-full relative transition-colors ${useMemory ? 'bg-[#3b82f6]' : 'bg-[#5b605d]'}`}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setUseMemory(!useMemory); } }}
+                aria-label={useMemory ? 'Tắt sử dụng bộ nhớ' : 'Bật sử dụng bộ nhớ'}
+                role="switch"
+                aria-checked={useMemory ? "true" : "false"}
+                tabIndex={0}
+                className={`w-[40px] h-[22px] rounded-full relative transition-colors cursor-pointer ${useMemory ? 'bg-[#3b82f6]' : 'bg-[#5b605d]'}`}
               >
                 <div className={`w-[18px] h-[18px] bg-white rounded-full absolute top-[2px] transition-all ${useMemory ? 'left-[20px]' : 'left-[2px]'}`} />
-              </button>
+              </div>
             </div>
           </div>
         </div>
@@ -468,12 +481,14 @@ export default function ChatPage() {
                   <div className="truncate pr-[20px] text-[10px] text-[#6f7a73]">
                     {conv.lastMessageContent || '...'}
                   </div>
-                  <div
+                  <button
+                    type="button"
                     onClick={(e) => handleDeleteClick(e, conv.conversationId)}
+                    aria-label="Xóa cuộc trò chuyện"
                     className="absolute top-[8px] right-[8px] w-[18px] h-[18px] rounded-full flex items-center justify-center text-[#6f7a73] hover:text-[#ff4d4d] hover:bg-[rgba(255,77,77,0.1)] opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     ×
-                  </div>
+                  </button>
                 </button>
               ))}
               {conversations.length === 0 && (
@@ -591,6 +606,7 @@ export default function ChatPage() {
               <input
                 type="text"
                 placeholder="Nhập câu hỏi..."
+                aria-label="Nhập câu hỏi"
                 className="w-full bg-transparent outline-none text-[14px] text-[#1b1f1c] placeholder:text-[#3a3f3b] mb-[10px]"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
@@ -610,7 +626,7 @@ export default function ChatPage() {
                       className="px-[8px] py-[4px] rounded-[8px] bg-[#f4f6f5] text-[11px] text-[#2b2f2b] flex items-center gap-[6px]"
                     >
                       <span className="max-w-[220px] truncate">{file.name}</span>
-                      <button type="button" onClick={() => removeAttachment(idx)} className="font-bold leading-none">
+                      <button type="button" onClick={() => removeAttachment(idx)} aria-label={`Xóa tệp ${file.name}`} className="font-bold leading-none">
                         ×
                       </button>
                     </div>
@@ -622,6 +638,7 @@ export default function ChatPage() {
                 <div className="flex items-center gap-[14px]">
                   <button
                     type="button"
+                    aria-label="Đính kèm tệp"
                     className="w-[22px] h-[22px] rounded-[6px] bg-[#f4f6f5] flex items-center justify-center hover:bg-[#e0e3e1] transition-colors"
                     onClick={() => fileInputRef.current?.click()}
                   >
@@ -633,12 +650,14 @@ export default function ChatPage() {
                     className="hidden"
                     multiple
                     accept=".pdf,.doc,.docx"
+                    aria-label="Chọn tệp đính kèm"
                     onChange={onChooseFiles}
                   />
                   <span className="text-[11px]">Đính kèm .pdf/.doc/.docx</span>
                 </div>
                 <div className="flex items-center gap-[8px]">
                   <button
+                    aria-label="Gửi tin nhắn"
                     className="w-[22px] h-[22px] rounded-full bg-[#f4f6f5] flex items-center justify-center transition-colors disabled:opacity-50 enabled:hover:bg-[#e0e3e1] enabled:cursor-pointer"
                     disabled={(!message.trim() && attachments.length === 0) || isLoading}
                     onClick={() => handleSendMessage(message)}
