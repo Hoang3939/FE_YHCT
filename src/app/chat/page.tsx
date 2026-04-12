@@ -381,8 +381,9 @@ export default function ChatPage() {
                 <span className="font-semibold text-[#cfd5cf]">Chế độ riêng tư</span>
                 <span className="text-[12px] text-[#6f7a73]">Ngăn chặn việc sử dụng dữ liệu của bạn để huấn luyện.</span>
               </div>
-              <button 
+              <button
                 onClick={() => setPrivacyMode(!privacyMode)}
+                aria-label="Bật tắt chế độ riêng tư"
                 className={`w-[40px] h-[22px] rounded-full relative transition-colors ${privacyMode ? 'bg-[#3b82f6]' : 'bg-[#5b605d]'}`}
               >
                 <div className={`w-[18px] h-[18px] bg-white rounded-full absolute top-[2px] transition-all ${privacyMode ? 'left-[20px]' : 'left-[2px]'}`} />
@@ -394,8 +395,9 @@ export default function ChatPage() {
                 <span className="font-semibold text-[#cfd5cf]">Sử dụng bộ nhớ</span>
                 <span className="text-[12px] text-[#6f7a73]">Ghi nhớ các cuộc trò chuyện trước đó và những chi tiết bạn đã chia sẻ.</span>
               </div>
-              <button 
+              <button
                 onClick={() => setUseMemory(!useMemory)}
+                aria-label="Bật tắt sử dụng bộ nhớ"
                 className={`w-[40px] h-[22px] rounded-full relative transition-colors ${useMemory ? 'bg-[#3b82f6]' : 'bg-[#5b605d]'}`}
               >
                 <div className={`w-[18px] h-[18px] bg-white rounded-full absolute top-[2px] transition-all ${useMemory ? 'left-[20px]' : 'left-[2px]'}`} />
@@ -634,6 +636,7 @@ export default function ChatPage() {
                     multiple
                     accept=".pdf,.doc,.docx"
                     onChange={onChooseFiles}
+                    aria-label="Đính kèm tệp PDF hoặc DOC"
                   />
                   <span className="text-[11px]">Đính kèm .pdf/.doc/.docx</span>
                 </div>
