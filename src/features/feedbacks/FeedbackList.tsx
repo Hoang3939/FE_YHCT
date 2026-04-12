@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Search, SlidersHorizontal, ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -9,6 +9,7 @@ import { FeedbackRow } from "@/features/feedbacks/FeedbackRow";
 import { MOCK_FEEDBACKS } from "@/types/feedback";
 import type { Feedback } from "@/types/feedback";
 import { sortFeedbacks } from "@/lib/utils";
+import { fetchFeedbacks } from "@/services/api/feedback.service";
 
 type SortKey = keyof Feedback;
 
@@ -22,14 +23,31 @@ interface FeedbackListProps {
  * Cột trái của Split View: tiêu đề, filter, tabs, bảng danh sách góp ý với sort.
  */
 export const FeedbackList = ({ selectedId, onSelect }: FeedbackListProps) => {
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>(MOCK_FEEDBACKS);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab]     = useState<FeedbackTabKey>("all");
   const [sortKey, setSortKey]         = useState<SortKey>("createdAt");
   const [sortDir, setSortDir]         = useState<"asc" | "desc">("desc");
 
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const data = await fetchFeedbacks();
+        if (!cancelled) {
+          setFeedbacks(data);
+        }
+      } catch {
+        // API unavailable — keep MOCK_FEEDBACKS as fallback
+      }
+    };
+    void load();
+    return () => { cancelled = true; };
+  }, []);
+
   const filtered = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
-    const base = MOCK_FEEDBACKS.filter((f) => {
+    const base = feedbacks.filter((f) => {
       if (activeTab !== "all" && f.status !== activeTab) return false;
       if (
         q &&
@@ -40,7 +58,7 @@ export const FeedbackList = ({ selectedId, onSelect }: FeedbackListProps) => {
       return true;
     });
     return sortFeedbacks(base as unknown as Record<string, unknown>[], sortKey as string, sortDir) as unknown as Feedback[];
-  }, [searchQuery, activeTab, sortKey, sortDir]);
+  }, [feedbacks, searchQuery, activeTab, sortKey, sortDir]);
 
   const handleSortToggle = (key: SortKey) => {
     if (sortKey === key) {
