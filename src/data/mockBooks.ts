@@ -20,13 +20,37 @@ export interface Book {
   chapters: BookChapter[];
 }
 
+import bai10Chunks from "./Bai10.json";
+
 const SAMPLE_CONTENT = `Cổ nhân nói: "Thuốc thang là chuyện cứu người, y thuật là đạo làm nhân." Trải qua hàng ngàn năm văn hiến, dân tộc Việt Nam đã đúc kết được kho tàng tri thức y học cổ truyền vô giá. Những bài thuốc từ cây cỏ quanh ta, những phương pháp bấm huyệt, châm cứu tinh diệu không chỉ chữa lành thân bệnh mà còn hướng tới sự cân bằng giữa con người và thiên nhiên.
 
 Trong dòng chảy của thời đại mới, việc ứng dụng trí tuệ nhân tạo (AI) vào việc bảo tồn và phát huy giá trị y học cổ truyền là một bước đi đột phá. Hệ thống HerbalScholar được xây dựng với mục tiêu cung cấp một nền tảng tra cứu và học tập hiện đại, giúp các nhà nghiên cứu, sinh viên và những người quan tâm dễ dàng tiếp cận với các văn bản cổ và kiến thức chuyên sâu một cách minh xác nhất.
 
 Chúng tôi hy vọng rằng, qua từng trang sách số này, quý độc giả sẽ tìm thấy không chỉ là kiến thức mà còn là niềm cảm hứng để tiếp tục gìn giữ ngọn lửa y thuật nước nhà, thực hiện đúng lời dạy của đại danh y Tuệ Tĩnh: "Nam dược trị Nam nhân".`;
 
+const bai10Chapters: BookChapter[] = bai10Chunks.map((c: any) => ({
+  id: c.metadata.chunk_index + 1,
+  title: c.metadata.title.replace(/[\#\*]/g, '').trim(),
+  page: c.metadata.chunk_index * 5 + 1,
+  content: c.text
+}));
+
+
 export const BOOKS: Book[] = [
+  {
+    id: "0000-1111-2222-Bai10",
+    title: "Bài 10: Dược liệu tẩy, nhuận tràng",
+    author: "Số Hóa Bằng OCR Pipeline",
+    year: 2024,
+    description: "Toàn bộ hình ảnh, nội dung đều được máy trí tuệ nhân tạo tách bóc tự động từ file PDF. Chứa hình ảnh Public từ Supabase.",
+    tags: ["Tự động", "Dược liệu", "AI"],
+    pageCount: 15,
+    language: "Tiếng Việt",
+    format: "EPUB (Pipeline)",
+    viewCount: 88,
+    downloadCount: 5,
+    chapters: bai10Chapters,
+  },
   {
     id: "y-hoc-co-truyen",
     title: "Y Học Cổ Truyền",

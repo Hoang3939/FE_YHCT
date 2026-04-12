@@ -1,0 +1,431 @@
+[
+  {
+    "id": "Bai10_chunk_0",
+    "text": "# DƯỢC LIỆU CÓ TÁC DỤNG TẨY, NHUẬN TRÀNG",
+    "metadata": {
+      "source": "Bai10",
+      "title": "DƯỢC LIỆU CÓ TÁC DỤNG TẨY, NHUẬN TRÀNG",
+      "chunk_index": 0,
+      "start_line": 2,
+      "end_line": 4,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_1",
+    "text": "# MỤC TIÊU\n\n- 1. Nêu được đặc điểm thực vật, bộ phận dùng, thành phần hóa học, công dụng, cách dùng, liều lượng những vị thuốc của các cây thuốc có tác dụng tẩy, nhuận tràng.\n- 2. Vận dụng được những kiến thức đã học vào trong thực tế hoạt động nghề nghiệp.",
+    "metadata": {
+      "source": "Bai10",
+      "title": "MỤC TIÊU",
+      "chunk_index": 1,
+      "start_line": 4,
+      "end_line": 9,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_2",
+    "text": "# **NỘI DUNG**",
+    "metadata": {
+      "source": "Bai10",
+      "title": "**NỘI DUNG**",
+      "chunk_index": 2,
+      "start_line": 9,
+      "end_line": 11,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_3",
+    "text": "# **CÂY THẢO QUYẾT MINH**\n\nTên khác: Cây Muồng ngủ - Cây đậu ma - Quyết minh tử (TQ)\n\nTên khoa học: Cassia tora L.\n\nHọ: Đậu (Fabaceae)\n\n![](https://hgqrnfcgzqenboqukipf.supabase.co/storage/v1/object/public/public-assets/ebooks/0000-1111-2222-Bai10/_page_0_Picture_10.jpeg)\n\n#### 1. Mô tả, phân bố\n\nCây thảo, sống hàng năm, cao 60 - 90 cm. Lá kép một lần lông chim chẵn, mọc so le, gồm 2 - 3 đôi lá chét, hình trứng ngược. Hoa mọc 1 - 3 cái ở kẽ lá, màu vàng. Quả loại đậu, hình trụ, dài 8-14cm, trong chứa 8-20 hạt. Hạt hình trụ, hai đầu vát chéo giống viên đá lửa, màu nâu xám, bóng, xếp thành một hàng dọc.\n\nCây mọc hoang ở các bãi cỏ, ven đường vùng trung du và miền núi khắp đất nước ta. Các tỉnh có nhiều Thảo quyết minh là: Nghệ An, Phú Thọ, Hòa Bình, Lạng Sơn, Cao Bằng, Quảng Ninh,...\n\n#### 2. Bộ phận dùng, thu hái\n\nBộ phận dùng làm thuốc của Thảo quyết minh là hạt (semen Cassiae torae) thu hái vào mùa thu, khi quả già (bắt đầu đen vỏ ngoài). Cắt cả cây đem về phơi khô, đập lấy hạt, loại bỏ tạp chất rồi phơi lại cho thật khô. Độ ẩm không quá 12%, tạp chất không quá 2%.\n\nThảo quyết minh (hạt) đã được ghi trong Dược điển Việt Nam (2002).\n\n#### 3. Thành phần hoá học\n\nHạt Thảo quyết minh có chứa antraglycosid, albumin, lipid, chất nhầy, chất màu, tanin.\n\n#### 4. Công dụng, cách dùng\n\nThảo quyết minh có tác dụng nhuận tràng, tẩy (tùy liều dùng), mát gan, lợi mật, lợi tiểu, thanh nhiệt và làm sáng mắt...\n\nDược liệu dùng chữa các chứng bệnh: Táo bón, nhức đầu, mắt đau sưng đỏ hay có màng mộng, mất ngủ, cao huyết áp...\n\nCách dùng: Uống 5 - 10 g/ngày, dạng thuốc sắc, thuốc bột. Có thể dùng sống hoặc sao (sao thì tác dụng nhuận tẩy sẽ giảm). Thảo quyết minh thường được dùng phối hợp với các dược liệu khác.\n\nLưu ý: Người bị đi lỏng không dùng.",
+    "metadata": {
+      "source": "Bai10",
+      "title": "**CÂY THẢO QUYẾT MINH**",
+      "chunk_index": 3,
+      "start_line": 11,
+      "end_line": 47,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_4",
+    "text": "### 5. Bài thuốc có dùng Thảo quyết minh\n\n| Thảo quyết minh (hạt) | 10g | Xuyên khung | 4g | Thạch quyết minh (cửu khổng) | 10g |\n|-----------------------|-----|-------------|----|------------------------------|-----|\n| Thược dược            | 4g  | Mộc tặc     | 4g | Mạn kinh tử                  | 4g  |\n| Khương hoạt           | 4g  | Hoàng cầm   | 4g |                              |     |\n| Cam thảo              | 4g  | Cúc hoa     | 8g |                              |     |\n\nTán thành bột. Uống 5g/lần; ngày 2 - 3 lần.\n\n{1}------------------------------------------------",
+    "metadata": {
+      "source": "Bai10",
+      "title": "5. Bài thuốc có dùng Thảo quyết minh",
+      "chunk_index": 4,
+      "start_line": 47,
+      "end_line": 59,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_5",
+    "text": "# ĐẠI HOÀNG (THÂN RỄ)\n\n(Rhizoma Rhei)",
+    "metadata": {
+      "source": "Bai10",
+      "title": "ĐẠI HOÀNG (THÂN RỄ)",
+      "chunk_index": 5,
+      "start_line": 59,
+      "end_line": 63,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_6",
+    "text": "# 1. Nguồn gốc, đặc điểm\n\nLà thân rễ đã cạo vỏ và phơi hay sấy khô của cây Đại hoàng (Rheum palmatum L.) hoặc (Rheum officinale Baillon) hay giống lai của hai loài trên, họ Rau răm (*Polygonaceae*).\n\nĐại hoàng là những miếng hình đĩa, hoặc hình trụ, hình ovan, đường kính tới 10cm. Mặt ngoài màu vàng nâu, đôi khi có những đám đen nhạt. Vết bẻ có màu đỏ cam, có hạt lổn nhổn. Mùi đặc biệt, vị đắng và chát.\n\nĐại hoàng đã được ghi trong Dược điển Việt Nam (2002).",
+    "metadata": {
+      "source": "Bai10",
+      "title": "1. Nguồn gốc, đặc điểm",
+      "chunk_index": 6,
+      "start_line": 63,
+      "end_line": 71,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_7",
+    "text": "# 2. Thành phần hóa học\n\nThân rễ Đại hoàng có hai loại hoạt chất chính là: Tanin và antraglycosid, trong đó chủ yếu là emodin, rhein, chrysophanol, aloe-emodin.",
+    "metadata": {
+      "source": "Bai10",
+      "title": "2. Thành phần hóa học",
+      "chunk_index": 7,
+      "start_line": 71,
+      "end_line": 75,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_8",
+    "text": "# 3. Công dụng, cách dùng\n\nĐại hoàng có tác dụng kích thích nhu động ruột, thanh nhiệt, giải độc, sát khuẩn...\n\nDược liệu dùng chữa các chứng bệnh: đầy bụng, ăn không tiêu, lỵ, táo bón; chảy máu cam, đau mắt đỏ, đau họng, đau do chấn thương... Dùng ngoài có tác dụng chữa bỏng.\n\n#### Cách dùng:\n\n- Giúp sự tiêu hoá: Uống 0,1 - 0,5g/ngày, dạng thuốc bột;\n- Thuốc nhuận tràng, tẩy: Uống 1 - 10 g/ngày\n- Dùng ngoài dạng thuốc bột trộn giấm, bôi, đắp lên vết thương.\n\n#### 4. Bài thuốc có dùng Đại hoàng\n\n#### 4.1 Bài thuốc chữa viêm ruột, đau bụng, táo bón\n\n| Đại hoàng  | 9g  |\n|------------|-----|\n| Đào nhân   | 9g  |\n| Hạt bí đao | 9g  |\n| Mang tiêu  | 9g  |\n| Mẫu đơn bì | 12g |\n\nSắc uống.\n\n#### 4.2 Bài thuốc chữa chấn thương, máu tụ, sưng đau\n\n| Đại hoàng | 18g |\n|-----------|-----|\n| Đương quy | 18g |\n\nTán bột, uống. Mỗi ngày 9g, ngày 2 lần.",
+    "metadata": {
+      "source": "Bai10",
+      "title": "3. Công dụng, cách dùng",
+      "chunk_index": 8,
+      "start_line": 75,
+      "end_line": 108,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_9",
+    "text": "# **CÂY MUỒNG TRÂU**\n\nTên khác: Cây muồng cánh - Ana drao bhao (Buôn Ma Thuột) - Cây lác - Muồng lác\n\nTên khoa học: Cassia alata L.\n\nHọ: Đậu (Fabaceae)\n\n{2}------------------------------------------------\n\n#### 1. Mô tả, phân bố\n\nCây nhỏ, cao 1 - 2 m hay hơn, thân ít phân nhánh. Lá kép lông chim chẵn rất to, có 8 - 14 đôi lá chét, mọc đối. Hoa tự mọc thành bông ở kẽ lá hoặc đầu cành, màu vàng. Quả loại đậu dẹt, có dìa 2 bên, trong chứa nhiều hạt nhỏ hình quả trám, màu đen.\n\nCây được trồng, mọc hoang ở các tỉnh trung du và miền núi nước ta. Nhiều nhất là các tỉnh phía Nam.",
+    "metadata": {
+      "source": "Bai10",
+      "title": "**CÂY MUỒNG TRÂU**",
+      "chunk_index": 9,
+      "start_line": 108,
+      "end_line": 124,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_10",
+    "text": "# 2. Bộ phận dùng, thu hái\n\nMuồng trâu có bộ phận dùng làm thuốc là lá và hạt. Hạt (semen Cassiae alatae). Thu hái vào mùa đông, khi quả đã già, phơi hoặc sấy khô, độ ẩm không quá 12%, tạp chất không quá 2%. Lá có thể thu hái quanh năm, hái về dùng tươi hay sấy khô.\n\nDược điển Việt Nam (2002) ghi lá Muồng trâu phơi sấy khô.",
+    "metadata": {
+      "source": "Bai10",
+      "title": "2. Bộ phận dùng, thu hái",
+      "chunk_index": 10,
+      "start_line": 124,
+      "end_line": 130,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_11",
+    "text": "# 3. Thành phần hoá học\n\nHạt và lá có các dẫn chất antraglycosid gồm emodin, rhein, chrysophanol, aloe-emodin.",
+    "metadata": {
+      "source": "Bai10",
+      "title": "3. Thành phần hoá học",
+      "chunk_index": 11,
+      "start_line": 130,
+      "end_line": 134,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_12",
+    "text": "# 4. Công dụng, cách dùng\n\nLá và hạt Muồng trâu có tác dụng nhuận tràng, tẩy, nhuận gan, tiêu độc, tiêu viêm...\n\nDược liệu dùng chữa các chứng bệnh: Táo bón, phù thũng, đau gan, da vàng; dùng ngoài chữa hắc lào.\n\nCách dùng:\n\n- Nhuận tràng uống 4 - 6g/ ngày, dạng thuốc sắc.\n- Thuốc tẩy uống 20 - 30g/ ngày, dạng thuốc sắc.\n- Chữa hắc lào: Giã nát lá, lấy nước cốt bôi lên vết hắc lào đã rửa sạch, lau khô.",
+    "metadata": {
+      "source": "Bai10",
+      "title": "4. Công dụng, cách dùng",
+      "chunk_index": 12,
+      "start_line": 134,
+      "end_line": 146,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_13",
+    "text": "# PHAN TẢ DIỆP (LÁ PHAN TẢ)\n\n(Folium Sennae)\n\n#### 1. Nguồn gốc, đặc điểm\n\nLá đã phơi khô của cây Phan tả diệp (Cassia angustifolia Vahl hoặc Cassia acutifolia Delile), họ Đậu (*Fabaceae*). Phan tả diệp có hình mũi mác dài, đỉnh nhọn thót lại, đáy không đối xứng, mỏng, giòn, mép nguyên, gân phụ nổi rõ ở hai mặt. Lá có màu xám lục, vị đắng.\n\n#### 2. Thành phần hoá học\n\nLá có chứa antraglycosid tỷ lệ 1 - 1,5%, chủ yếu là sennosid A, B, rhein, aloe-emodin.\n\n#### 3. Công dụng, cách dùng\n\nPhan tả diệp có tác dụng nhuận tràng hay tẩy (tùy theo liều lượng dùng).\n\nDược liệu được dùng chữa các chứng bệnh: táo bón kinh niên, bụng đầy trướng, ăn không tiêu.\n\n#### Cách dùng:\n\n- Giúp tiêu hóa: Uống 1 - 2 g/ngày, dạng thuốc sắc, thuốc hãm.\n- Nhuận tràng: Uống 3 - 4 g/ngày, dạng thuốc sắc, thuốc hãm.\n- Thuốc tẩy: Uống 5 - 7 g/ngày, dạng thuốc sắc, thuốc hãm.\n\nCó thể dùng nước sắc, hãm để thụt, có tác dụng nhanh hơn.\n\nLưu ý: Phụ nữ có thai hay mới đẻ không được dùng\n\n![](https://hgqrnfcgzqenboqukipf.supabase.co/storage/v1/object/public/public-assets/ebooks/0000-1111-2222-Bai10/_page_2_Picture_27.jpeg)\n\n{3}------------------------------------------------",
+    "metadata": {
+      "source": "Bai10",
+      "title": "PHAN TẢ DIỆP (LÁ PHAN TẢ)",
+      "chunk_index": 13,
+      "start_line": 146,
+      "end_line": 178,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_14",
+    "text": "# CHÚT CHÍT\n\nTên khác: Lưỡi bò - Phắc cát lang (Thái) - Thổ đại hoàng\n\nTên khoa học: Rumex wallichii Meis.\n\nHọ: Rau răm (Polygonaceae)",
+    "metadata": {
+      "source": "Bai10",
+      "title": "CHÚT CHÍT",
+      "chunk_index": 14,
+      "start_line": 178,
+      "end_line": 186,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_15",
+    "text": "# 1. Mô tả, phân bố\n\nChút chít thuộc loại cây thảo sống lâu năm, cao 0,4 - 1m, thân mềm có khía rãnh dọc, ruột rỗng. Lá mọc so le, mép nguyên, mềm, lượn sóng, có bẹ chìa. Hoa màu vàng xanh, mọc thành xim ở đầu ngọn. Quả bế nhỏ có 3 cạnh. Rễ phình thành củ thuôn dài, màu vàng, cắt ngang có vân.\n\nCây thường mọc hoang ở ruộng bỏ hoang hay ở những nơi mát hoặc được trồng bằng hạt.",
+    "metadata": {
+      "source": "Bai10",
+      "title": "1. Mô tả, phân bố",
+      "chunk_index": 15,
+      "start_line": 186,
+      "end_line": 192,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_16",
+    "text": "# 2. Bộ phận dùng, thu hái\n\nBộ phận dùng làm thuốc của cây Chút chít là rễ củ. Thu hái vào mùa thu, đào lấy củ, rửa sạch, phơi sấy khô.",
+    "metadata": {
+      "source": "Bai10",
+      "title": "2. Bộ phận dùng, thu hái",
+      "chunk_index": 16,
+      "start_line": 192,
+      "end_line": 196,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_17",
+    "text": "# 3. Thành phần hóa học\n\nRễ và lá chút chít có chứa antraglycosid, chất nhựa, tanin.",
+    "metadata": {
+      "source": "Bai10",
+      "title": "3. Thành phần hóa học",
+      "chunk_index": 17,
+      "start_line": 196,
+      "end_line": 200,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_18",
+    "text": "# 4. Công dụng, cách dùng\n\nChút chít có tác dụng nhuận tràng, tẩy, thanh nhiệt, sát khuẩn.\n\n- Dùng trong chữa táo bón.\n- Dùng ngoài để chữa chốc đầu, lở ngứa.\n\n#### Cách dùng:\n\n- Nhuận tràng uống 4 - 6g/ ngày, dạng thuốc sắc.\n- Thuốc tẩy uống 6 - 12 g/ ngày, dạng thuốc sắc.\n- Dùng ngoài để chữa chốc đầu, lở ngứa, hắc lào bằng cách giã nát để bôi, đắp.",
+    "metadata": {
+      "source": "Bai10",
+      "title": "4. Công dụng, cách dùng",
+      "chunk_index": 18,
+      "start_line": 200,
+      "end_line": 213,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_19",
+    "text": "# LÔ HỘI (NHỰA)\n\n(Aloe)\n\n#### 1. Nguồn gốc, đặc điểm\n\nLà chất dịch cô đặc và sấy khô, lấy từ lá cây Lô hội (Aloe vera L. hoặc Aloe ferox Mill.), họ Lô hội (Asphodelaceae).\n\nNhựa Lô hội là những khối có kích thước không đồng đều, màu nâu đen bóng, dễ vỡ vụn, vết vỡ óng ánh như thủy tinh. Mùi hơi khó chịu, vị đắng và nồng.\n\nNhựa Lô hội đã được ghi trong Dược điển Việt Nam (2002).\n\n#### 2. Thành phần hóa học\n\nTùy theo nguồn gốc, nhựa Lô hội có thành phần hóa học hơi khác nhau, nhưng nói chung đều có chứa các loại dược chất sau: Tinh dầu, nhựa, antraglycosid (chủ yếu là aloin và aloe-emodin tự do).\n\n#### 3. Công dụng, cách dùng\n\n![](https://hgqrnfcgzqenboqukipf.supabase.co/storage/v1/object/public/public-assets/ebooks/0000-1111-2222-Bai10/_page_3_Picture_28.jpeg)\n\n{4}------------------------------------------------\n\nLô hội có tác dụng thông đại tiểu tiện, thanh nhiệt. Dùng chữa các chứng bệnh: táo bón, ăn uống không tiêu, bế kinh và giải độc Ba đậu.\n\nCách dùng: Uống từ 0,06 - 2g (tùy mục đích điều trị), dạng thuốc sắc, bột hay viên.\n\nLưu ý: Lô hội có tác dụng tẩy mạnh, có thể gây hại dạ dày; phụ nữ có thai không dùng.\n\n#### 4. Bài thuốc có dùng Lô hội\n\nBột lô hội 0,08g\nCao mật bò tinh chế 0,05g\nBột cam thảo 0,05g\n\nTá dược vừa đủ 1 viên.\n\nCông dụng: Chữa táo bón, bí đại tiện, yếu gan, vàng da, tiêu hóa kém. Uống 1 - 2 viên/ngày vào lúc ăn cơm chiều (không dùng cho trẻ dưới 15 tuổi).",
+    "metadata": {
+      "source": "Bai10",
+      "title": "LÔ HỘI (NHỰA)",
+      "chunk_index": 19,
+      "start_line": 213,
+      "end_line": 251,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_20",
+    "text": "# ĐẠI (VỎ)\n\n(Cortex Plumeriae rubrae)\n\nTên khác: Kê đản hoa",
+    "metadata": {
+      "source": "Bai10",
+      "title": "ĐẠI (VỎ)",
+      "chunk_index": 20,
+      "start_line": 251,
+      "end_line": 257,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_21",
+    "text": "# 1. Nguồn gốc, đặc điểm\n\nLà vỏ thân đã phơi hoặc sấy khô của cây Đại (Plumeria rubra L. var. acutifolia (Poir.) Bailey), họ Trúc đào (*Apocynaceae*). Vỏ là những mảnh dài ngắn không đều, dày 0,1-0,3cm nhẵn, thường cong queo, dễ bẻ gãy. Mặt ngoài màu nâu xám hay xám mốc, có lớp màng mỏng nhăn nheo dễ bong ra, để lộ lớp vỏ màu nâu hay lục nâu. Mặt trong màu nâu nhạt, ráp, không mùi, vị đắng.\n\nVỏ đại đã được ghi trong Dược điển Việt Nam (2002) và phải có độ ẩm không quá 13%, tạp chất không quá 1%.",
+    "metadata": {
+      "source": "Bai10",
+      "title": "1. Nguồn gốc, đặc điểm",
+      "chunk_index": 21,
+      "start_line": 257,
+      "end_line": 263,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_22",
+    "text": "### 2. Thành phần hóa học\n\nVỏ đại chứa glycosid là plumericin, isoplumericin.\n\n#### 3. Công dụng, cách dùng\n\nVỏ thân có tác dụng tẩy, lợi tiểu và sát trùng. Dùng chữa các chứng bệnh: táo bón lâu ngày, thủy thũng, bí tiểu tiện. Dùng ngoài lấy mủ tươi chữa mụn nhọt, sưng tấy.\n\nCách dùng: Để nhuận tràng dùng 4 - 8g/ngày; để tẩy dùng 8 - 20g/ngày bằng cách sắc với 200ml nước, chia làm 3 lần uống trong ngày; dùng đến khi hết táo bón thì thôi.\n\nLưu ý: Phụ nữ có thai không được dùng.",
+    "metadata": {
+      "source": "Bai10",
+      "title": "2. Thành phần hóa học",
+      "chunk_index": 22,
+      "start_line": 263,
+      "end_line": 275,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_23",
+    "text": "### **VỌNG GIANG NAM (HẠT)**\n\n(Semen Cassiae)\n\n#### 1. Nguồn gốc, đặc điểm\n\nLà hạt phơi khô của cây Vọng giang nam (Cassia occidentalis L.), họ Vang (*Caesalpiniaceae*), độ ẩm không quá 10%.\n\n#### 2. Thành phần hoá học\n\nHạt có antraglycosid là emodin, chất nhầy, chất béo, tanin.\n\n![](https://hgqrnfcgzqenboqukipf.supabase.co/storage/v1/object/public/public-assets/ebooks/0000-1111-2222-Bai10/_page_4_Picture_25.jpeg)\n\n{5}------------------------------------------------\n\n#### 3. Công dụng, cách dùng\n\nVọng giang nam có tác dụng nhuận tràng và kích thích tiêu hóa. Dùng chữa các chứng bệnh: táo bón, đầy bụng, ăn không tiêu.\n\nCách dùng: Ngày dùng 10 - 20 g (sao vàng), dạng thuốc sắc.",
+    "metadata": {
+      "source": "Bai10",
+      "title": "**VỌNG GIANG NAM (HẠT)**",
+      "chunk_index": 23,
+      "start_line": 275,
+      "end_line": 297,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_24",
+    "text": "# **LƯỢNG GIÁ**\n\nTrả lời ngắn các câu sau bằng cách điền từ, cụm từ thích hợp vào chỗ trống ():",
+    "metadata": {
+      "source": "Bai10",
+      "title": "**LƯỢNG GIÁ**",
+      "chunk_index": 24,
+      "start_line": 297,
+      "end_line": 301,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_25",
+    "text": "1. Hai bộ phận dùng làm thuốc của cây Muồng trâu là:\n   A\n   B",
+    "metadata": {
+      "source": "Bai10",
+      "title": "1. Hai bộ phận dùng làm thuốc của cây Muồng trâu là:",
+      "chunk_index": 25,
+      "start_line": 301,
+      "end_line": 304,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_26",
+    "text": "2. Công dụng chính của thân rễ cây Đại hoàng là:\n   A\n   B\n   C",
+    "metadata": {
+      "source": "Bai10",
+      "title": "2. Công dụng chính của thân rễ cây Đại hoàng là:",
+      "chunk_index": 26,
+      "start_line": 304,
+      "end_line": 308,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_27",
+    "text": "3. Thảo quyết minh thuộc loại cây thảo, lá kép lông chim, hoa mọc ở hạt hình trụ, hai đầu\n\nPhân biệt đúng/sai các câu sau bằng cách đánh dấu vào chữ A (cho câu đúng) và chữ B (cho câu sai):",
+    "metadata": {
+      "source": "Bai10",
+      "title": "3. Thảo quyết minh thuộc loại cây thảo, lá kép lông chim, hoa mọc ở hạt hình trụ, hai đầu",
+      "chunk_index": 27,
+      "start_line": 308,
+      "end_line": 312,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_28",
+    "text": "4. Hạt cây Thảo quyết minh có antraglycosid, lipid, chất màu, tanin. A-B",
+    "metadata": {
+      "source": "Bai10",
+      "title": "4. Hạt cây Thảo quyết minh có antraglycosid, lipid, chất màu, tanin. A-B",
+      "chunk_index": 28,
+      "start_line": 312,
+      "end_line": 313,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_29",
+    "text": "5. Thân rễ cây Đại hoàng có antraglycosid là emodin, rhein, aloe-emodin. A-B",
+    "metadata": {
+      "source": "Bai10",
+      "title": "5. Thân rễ cây Đại hoàng có antraglycosid là emodin, rhein, aloe-emodin. A-B",
+      "chunk_index": 29,
+      "start_line": 313,
+      "end_line": 314,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_30",
+    "text": "6. Lá cây muồng trâu có emodin, rhein, chrysophanol, aloe-emodin. A-B",
+    "metadata": {
+      "source": "Bai10",
+      "title": "6. Lá cây muồng trâu có emodin, rhein, chrysophanol, aloe-emodin. A-B",
+      "chunk_index": 30,
+      "start_line": 314,
+      "end_line": 315,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_31",
+    "text": "7. Rễ củ cây Chút chít có antraglycosid, chất nhựa, tanin. A-B",
+    "metadata": {
+      "source": "Bai10",
+      "title": "7. Rễ củ cây Chút chít có antraglycosid, chất nhựa, tanin. A-B",
+      "chunk_index": 31,
+      "start_line": 315,
+      "end_line": 317,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  },
+  {
+    "id": "Bai10_chunk_32",
+    "text": "# Chọn giải pháp đúng nhất cho các câu sau bằng cách đánh dấu vào chữ cái đầu giải pháp mà bạn chọn:\n\n- 8. Nguồn gốc của các vị thuốc:\n  - A. Đại hoàng là rễ đã phơi khô của cây Đại hoàng.\n  - B. Chút chít là rễ đã phơi khô của cây Chút chít.\n  - C. Vọng giang nam là quả đã phơi khô của cây Vọng giang nam.\n  - D. Phan tả diệp là lá phơi khô của cây Phan tả.\n- 9. Công dụng của các vị thuốc:\n  - A. Hạt thảo quyết minh làm thuốc nhuận tẩy, lợi tiểu.\n  - B. Thân rễ đại hoàng làm thuốc tẩy, nhuận tràng (tùy theo liều).\n  - C. Hạt muồng trâu làm thuốc thanh nhiệt, chữa ghẻ lở.\n  - D. Phan tả diệp làm thuốc thông tiểu, chữa táo bón.\n  - E. Rễ Chút chít làm thuốc nhuận tràng, chữa lở ngứa.\n- 10. Cách dùng của các vị thuốc:\n  - A. Hạt vọng giang nam chữa táo bón, ngày dùng 5g, dạng thuốc sắc.\n  - B. Vỏ đại chữa bí tiểu tiện, ngày dùng 5g, dạng thuốc hãm.\n  - C. Đại hoàng chữa táo bón, ngày dùng 2g, dạng thuốc bột.\n  - D. Chút chít chữa táo bón, ngày dùng 4-6g, dạng thuốc sắc.",
+    "metadata": {
+      "source": "Bai10",
+      "title": "Chọn giải pháp đúng nhất cho các câu sau bằng cách đánh dấu vào chữ cái đầu giải pháp mà bạn chọn:",
+      "chunk_index": 32,
+      "start_line": 317,
+      "end_line": 335,
+      "method": "recipe_based",
+      "ebookId": "0000-1111-2222-Bai10"
+    }
+  }
+]

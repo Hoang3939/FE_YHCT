@@ -20,6 +20,29 @@ import {
 import { getBookById } from "@/data/mockBooks";
 import { notFound } from "next/navigation";
 
+const renderContent = (content: string) => {
+  if (!content) return null;
+  // Tách văn bản tại vị trí các thẻ ảnh markdown ![](url)
+  const parts = content.split(/(!\[.*?\]\(.*?\))/g);
+  
+  return parts.map((part, index) => {
+    const match = part.match(/!\[(.*?)\]\((.*?)\)/);
+    if (match) {
+      return (
+        <img
+          key={index}
+          src={match[2]}
+          alt={match[1] || "Hình ảnh bài thuốc"}
+          className="my-6 max-w-full rounded-lg shadow-md mx-auto block max-h-[500px] object-contain"
+          loading="lazy"
+        />
+      );
+    }
+    // Nếu chỉ là text, hiển thị bình thường
+    return <span key={index}>{part}</span>;
+  });
+};
+
 export default function BookReaderPage({
   params,
 }: {
@@ -129,14 +152,10 @@ export default function BookReaderPage({
 
             {/* Chapter Content */}
             <div
-              className={`font-sans uppercase leading-6 tracking-wide whitespace-pre-line ${currentTheme.text}`}
+              className={`font-sans leading-6 tracking-wide whitespace-pre-line ${currentTheme.text}`}
               style={{ fontSize: `${fontSize}px` }}
             >
-              {currentChapter.content}
-              {"\n\n"}
-              {currentChapter.content}
-              {"\n\n"}
-              {currentChapter.content}
+              {renderContent(currentChapter.content)}
             </div>
 
             {/* Divider */}
