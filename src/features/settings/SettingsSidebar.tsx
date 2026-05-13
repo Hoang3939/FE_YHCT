@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { 
   Settings, Network, Shield, Bell, 
   Archive, Hexagon 
@@ -46,18 +46,18 @@ export const SettingsSidebar = ({ activeTab, onTabChange }: SettingsSidebarProps
   }, []);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex min-w-0 flex-col gap-6">
       {/* Cấu hình Menu */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3">
-        <div className="px-3 py-2 mb-2">
-          <h2 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+      <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm">
+        <div className="mb-2 px-3 py-2">
+          <h2 className="flex items-center gap-2 text-sm font-bold text-gray-900">
             <Settings size={16} className="text-emerald-500" />
             Cấu hình
           </h2>
-          <p className="text-[10px] text-gray-400 mt-0.5">v2.4.1-stable</p>
+          <p className="mt-0.5 text-[10px] text-gray-400">v2.4.1-stable</p>
         </div>
-        
-        <nav className="flex flex-col gap-1">
+
+        <nav className="grid grid-cols-1 gap-1 sm:grid-cols-2 xl:grid-cols-1">
           {sortedMenu.map((item) => {
             const isActive = activeTab === item.id;
             return (
@@ -65,14 +65,14 @@ export const SettingsSidebar = ({ activeTab, onTabChange }: SettingsSidebarProps
                 key={item.id}
                 onClick={() => onTabChange(item.id)}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors w-full text-left",
+                  "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors",
                   isActive
                     ? "bg-emerald-50 text-emerald-600"
                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 )}
               >
                 <item.icon size={16} className={isActive ? "text-emerald-500" : "text-gray-400"} />
-                {item.label}
+                <span className="min-w-0 truncate">{item.label}</span>
               </button>
             );
           })}
@@ -80,19 +80,19 @@ export const SettingsSidebar = ({ activeTab, onTabChange }: SettingsSidebarProps
       </div>
 
       {/* Trạng thái Services */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
-        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-4">
+      <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+        <p className="mb-4 text-[10px] font-bold uppercase tracking-wider text-gray-400">
           Trạng thái
         </p>
-        <div className="flex flex-col gap-3 text-xs">
+        <div className="grid grid-cols-1 gap-3 text-xs sm:grid-cols-2 xl:grid-cols-1">
           {SERVICES.map((srv) => (
-            <div key={srv.name} className="flex items-center justify-between">
-              <span className="text-gray-500 flex items-center gap-1.5">
-                {srv.name}
+            <div key={srv.name} className="flex items-center justify-between gap-3 rounded-lg border border-gray-100 px-3 py-2">
+              <span className="flex min-w-0 items-center gap-1.5 text-gray-500">
+                <span className="truncate">{srv.name}</span>
               </span>
-              <div className="flex items-center gap-1.5">
-                <span className={`w-2 h-2 rounded-full ${srv.color}`} />
-                <span className={srv.status === "OK" ? "text-emerald-600 font-medium" : "text-red-500 font-medium"}>
+              <div className="flex shrink-0 items-center gap-1.5">
+                <span className={`h-2 w-2 rounded-full ${srv.color}`} />
+                <span className={srv.status === "OK" ? "font-medium text-emerald-600" : "font-medium text-red-500"}>
                   {srv.status}
                 </span>
               </div>
