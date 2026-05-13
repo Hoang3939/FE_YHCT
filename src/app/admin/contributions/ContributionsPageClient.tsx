@@ -21,8 +21,8 @@ const ContributionsPageClient = () => {
   };
 
   return (
-    <div className="flex flex-col gap-4 max-w-[1600px] mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-[60%_40%] gap-4 items-start">
+    <div className="mx-auto flex max-w-[1600px] min-w-0 flex-col gap-4">
+      <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[60%_40%]">
         {/* Left: List */}
         <ContributionTable
           key={refreshKey}
