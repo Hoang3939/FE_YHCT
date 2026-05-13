@@ -70,7 +70,7 @@ const PipelinePageClient = () => {
   }, [fetchData, stopPolling]);
 
   return (
-    <div className="flex flex-col gap-5 max-w-[1600px] mx-auto">
+    <div className="mx-auto flex max-w-[1600px] min-w-0 flex-col gap-5">
       {/* Row 1: Stats */}
       <PipelineSummary stats={stats} />
 
@@ -81,11 +81,11 @@ const PipelinePageClient = () => {
     <PipelineStepper />
 
     {/* Row 4: Chart 70% + Workers 30% */}
-    <div className="grid grid-cols-1 lg:grid-cols-10 gap-5">
-      <div className="lg:col-span-7">
+    <div className="grid grid-cols-1 gap-5 xl:grid-cols-10">
+      <div className="min-w-0 xl:col-span-7">
         <ThroughputChart />
       </div>
-      <div className="lg:col-span-3">
+      <div className="min-w-0 xl:col-span-3">
         <WorkerNodes />
       </div>
     </div>
