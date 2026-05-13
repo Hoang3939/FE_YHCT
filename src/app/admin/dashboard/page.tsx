@@ -9,25 +9,25 @@ import { Card } from "@/components/ui/Card";
 
 export default function AdminDashboardPage() {
   return (
-    <div className="flex flex-col gap-6 max-w-[1600px] mx-auto">
+    <div className="mx-auto flex max-w-[1600px] min-w-0 flex-col gap-6">
       {/* Welcome Banner */}
-      <div className="bg-emerald-700 rounded-2xl p-6 text-white flex flex-col md:flex-row justify-between items-start md:items-center shadow-md border-b-4 border-emerald-800">
-        <div>
-          <p className="text-emerald-100 text-sm font-medium tracking-wide uppercase mb-1">CHÀO MỪNG TRỞ LẠI, ADMIN NGUYỄN</p>
-          <h2 className="text-2xl font-bold">Hệ thống RAG hoạt động bình thường - 94.3% độ chính xác truy xuất</h2>
+      <div className="flex min-w-0 flex-col gap-5 rounded-2xl border-b-4 border-emerald-800 bg-emerald-700 p-5 text-white shadow-md lg:flex-row lg:items-end lg:justify-between lg:p-6">
+        <div className="min-w-0 flex-1">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-100 md:text-sm">CHÀO MỪNG TRỞ LẠI, ADMIN NGUYỄN</p>
+          <h2 className="max-w-4xl text-2xl font-bold leading-tight md:text-[2rem]">Hệ thống RAG hoạt động bình thường - 94.3% độ chính xác truy xuất</h2>
         </div>
-        <div className="flex gap-8 mt-4 md:mt-0">
-          <div className="text-right">
-             <p className="text-emerald-100 text-xs">Truy vấn hôm nay</p>
-             <p className="text-3xl font-bold">2,847</p>
+        <div className="grid w-full grid-cols-2 gap-4 md:grid-cols-3 lg:w-auto lg:min-w-[420px]">
+          <div className="rounded-xl bg-white/10 px-4 py-3 text-left backdrop-blur-sm lg:text-right">
+             <p className="text-[11px] uppercase tracking-wide text-emerald-100 md:text-xs">Truy vấn hôm nay</p>
+             <p className="mt-1 text-2xl font-bold md:text-3xl">2,847</p>
           </div>
-          <div className="text-right hidden sm:block">
-             <p className="text-emerald-100 text-xs">Bài thuốc đã index</p>
-             <p className="text-3xl font-bold">8,492</p>
+          <div className="rounded-xl bg-white/10 px-4 py-3 text-left backdrop-blur-sm lg:text-right">
+             <p className="text-[11px] uppercase tracking-wide text-emerald-100 md:text-xs">Bài thuốc đã index</p>
+             <p className="mt-1 text-2xl font-bold md:text-3xl">8,492</p>
           </div>
-          <div className="text-right hidden lg:block">
-             <p className="text-emerald-100 text-xs">Uptime</p>
-             <p className="text-3xl font-bold">99.8%</p>
+          <div className="col-span-2 rounded-xl bg-white/10 px-4 py-3 text-left backdrop-blur-sm md:col-span-1 lg:text-right">
+             <p className="text-[11px] uppercase tracking-wide text-emerald-100 md:text-xs">Uptime</p>
+             <p className="mt-1 text-2xl font-bold md:text-3xl">99.8%</p>
           </div>
         </div>
       </div>

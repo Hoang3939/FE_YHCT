@@ -1,23 +1,23 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { 
-  Home, 
-  Users, 
-  FileText, 
-  Activity, 
-  MessageSquare, 
+import { useSelectedLayoutSegment } from "next/navigation";
+import {
+  Home,
+  Users,
+  FileText,
+  Activity,
+  MessageSquare,
   Settings,
   Database,
-  ClipboardCheck
+  ClipboardCheck,
+  type LucideIcon,
 } from "lucide-react";
 import { useRole, type AdminRole } from "@/hooks/useRole";
 
 interface MenuItem {
   name: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: LucideIcon;
   href: string;
   /** Which roles can see this item. undefined = all roles */
   roles?: AdminRole[];
@@ -29,7 +29,7 @@ interface MenuItem {
  * Role-aware: admin thấy tất cả, expert chỉ thấy contributions.
  */
 export const AdminSidebar = () => {
-  const pathname = usePathname();
+  const activeSegment = useSelectedLayoutSegment();
   const role = useRole();
 
   const menuItems: MenuItem[] = [
@@ -45,6 +45,11 @@ export const AdminSidebar = () => {
   const visibleItems = menuItems.filter(
     (item) => !item.roles || item.roles.includes(role),
   );
+
+  const isItemActive = (href: string) => {
+    const hrefSegment = href.split("/").filter(Boolean)[1] ?? null;
+    return activeSegment === hrefSegment;
+  };
 
   return (
     <aside className="w-64 h-screen bg-[#111827] text-gray-300 flex flex-col fixed left-0 top-0 z-20">
@@ -64,7 +69,7 @@ export const AdminSidebar = () => {
           Phân hệ chức năng
         </p>
         {visibleItems.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+          const isActive = isItemActive(item.href);
           return (
             <Link
               key={item.name}
@@ -95,8 +100,8 @@ export const AdminSidebar = () => {
                 <span className="text-gray-400 flex items-center gap-1"><Database size={12}/> Vector DB</span>
                 <span className="text-emerald-400 font-medium">94%</span>
              </div>
-             <div className="w-full bg-gray-700 h-1.5 rounded-full overflow-hidden">
-                <div className="bg-emerald-500 h-full" style={{ width: '94%' }}></div>
+             <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-700">
+                <div className="h-full w-[94%] bg-emerald-500"></div>
              </div>
           </div>
         </div>
