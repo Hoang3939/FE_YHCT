@@ -42,8 +42,8 @@ export const FeedbackBarChart = () => {
         </div>
       </div>
 
-      <div className="flex-1 w-full mt-2">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="flex-1 w-full mt-2 min-h-[200px]">
+        <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
           <BarChart
             data={data}
             margin={{
