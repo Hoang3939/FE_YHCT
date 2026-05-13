@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase";
 
 type PipelineStatus = "pending_approval" | "pending" | "processing" | "completed" | "failed";
 
