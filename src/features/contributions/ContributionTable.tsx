@@ -75,7 +75,7 @@ export const ContributionTable = ({
   }, [contributions, activeTab, searchQuery]);
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
+    <div className="min-w-0 rounded-xl border border-gray-100 bg-white shadow-sm">
       {/* Header */}
       <div className="p-4 border-b border-gray-100">
         <h2 className="text-base font-semibold text-gray-900 mb-3">
@@ -83,7 +83,7 @@ export const ContributionTable = ({
         </h2>
 
         {/* Tabs */}
-        <div className="flex gap-1 mb-3">
+        <div className="mb-3 flex flex-wrap gap-1">
           {TABS.map((tab) => (
             <button
               key={tab.key}
@@ -130,7 +130,7 @@ export const ContributionTable = ({
         )}
 
         {!loading && !error && filtered.length > 0 && (
-          <table className="w-full">
+          <table className="min-w-[760px] w-full">
             <thead>
               <tr className="border-b border-gray-100 text-xs text-gray-500 uppercase tracking-wider">
                 <th className="py-2.5 px-4 text-left font-medium">Tiêu đề</th>

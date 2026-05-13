@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Search, SlidersHorizontal, ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -80,19 +80,19 @@ export const FeedbackList = ({ selectedId, onSelect }: FeedbackListProps) => {
   ];
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col">
+    <div className="flex min-w-0 flex-col rounded-xl border border-gray-200 bg-white shadow-sm">
       {/* Header */}
-      <div className="p-4 border-b border-gray-100">
-        <div className="flex items-center justify-between mb-3">
-          <div>
+      <div className="border-b border-gray-100 p-4">
+        <div className="mb-3 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
             <h3 className="text-sm font-bold text-gray-900">Danh sách góp ý</h3>
-            <p className="text-xs text-gray-400 mt-0.5">{filtered.length} kết quả</p>
+            <p className="mt-0.5 text-xs text-gray-400">{filtered.length} kết quả</p>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" className="gap-1.5 h-9 text-xs">
+          <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap lg:w-auto lg:justify-end">
+            <Button variant="outline" className="h-9 w-full gap-1.5 text-xs sm:w-auto">
               <SlidersHorizontal size={13} /> Bộ lọc
             </Button>
-            <div className="w-52">
+            <div className="w-full sm:max-w-xs lg:w-64">
               <Input
                 leftIcon={<Search size={13} />}
                 placeholder="Tìm tiêu đề, tác giả, tag..."
@@ -109,8 +109,8 @@ export const FeedbackList = ({ selectedId, onSelect }: FeedbackListProps) => {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto flex-1">
-        <table className="w-full text-sm">
+      <div className="min-w-0 flex-1 overflow-x-auto">
+        <table className="min-w-[860px] w-full text-sm">
           <thead>
             <tr className="border-b border-gray-100 bg-gray-50/50">
               {headers.map((h) => (

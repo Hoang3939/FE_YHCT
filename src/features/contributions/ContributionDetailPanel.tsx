@@ -73,11 +73,17 @@ export const ContributionDetailPanel = ({
 
   const handleReview = async (status: "approved" | "rejected") => {
     if (!detail) return;
+
+    const trimmedFeedback = feedbackText.trim();
+    if (status === "rejected" && !trimmedFeedback) {
+      return;
+    }
+
     setReviewing(true);
     try {
       await reviewContribution(detail.contributionId, {
         status,
-        feedback: feedbackText.trim() || undefined,
+        feedback: trimmedFeedback || undefined,
       });
       onReviewed?.();
     } catch {
@@ -119,7 +125,7 @@ export const ContributionDetailPanel = ({
   const isPending = detail.status === "pending";
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
+    <div className="min-w-0 rounded-xl border border-gray-100 bg-white shadow-sm">
       {/* Header */}
       <div className="p-4 border-b border-gray-100">
         <div className="flex items-start justify-between gap-2">
@@ -186,39 +192,49 @@ export const ContributionDetailPanel = ({
 
       {/* Expert review actions — chỉ hiện cho expert + trạng thái pending */}
       {isExpert && isPending && (
-        <div className="p-4 border-t border-gray-100 space-y-3">
+        <div className="space-y-3 border-t border-gray-100 p-4">
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-800">
+            Đóng góp là flow có xét duyệt. Nếu chuyên gia từ chối, bắt buộc phải nhập lý do để người gửi nhận được phản hồi rõ ràng qua email.
+          </div>
+
           <div>
             <label
               htmlFor="review-feedback"
-              className="text-xs font-medium text-gray-500 mb-1 block"
+              className="mb-1 block text-xs font-medium text-gray-500"
             >
-              Nhận xét (tuỳ chọn)
+              {feedbackText.trim().length > 0
+                ? "Nhận xét cho người đóng góp"
+                : "Nhận xét cho người đóng góp"}
             </label>
             <textarea
               id="review-feedback"
               value={feedbackText}
               onChange={(e) => setFeedbackText(e.target.value)}
-              placeholder="Nhập nhận xét cho người đóng góp..."
-              rows={3}
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
+              placeholder="Nhập nhận xét cho người đóng góp. Khi từ chối, trường này là bắt buộc."
+              rows={4}
+              className="w-full resize-none rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
+            <p className="mt-1 text-xs text-gray-500">
+              Duyệt: có thể để trống. Từ chối: bắt buộc nêu lý do cụ thể.
+            </p>
           </div>
-
-          <div className="flex gap-2">
+ 
+          <div className="flex flex-col gap-2 sm:flex-row">
             <Button
               onClick={() => void handleReview("approved")}
               disabled={reviewing}
-              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-sm"
+              className="flex-1 bg-emerald-600 text-sm text-white hover:bg-emerald-700"
             >
-              <CheckCircle className="w-4 h-4 mr-1.5" />
-              Duyệt
+              <CheckCircle className="mr-1.5 h-4 w-4" />
+              Duyệt & gửi email
             </Button>
             <Button
               onClick={() => void handleReview("rejected")}
-              disabled={reviewing}
-              className="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm"
+              disabled={reviewing || !feedbackText.trim()}
+              className="flex-1 bg-red-600 text-sm text-white hover:bg-red-700 disabled:bg-red-300"
+              title={!feedbackText.trim() ? "Cần nhập lý do từ chối" : undefined}
             >
-              <XCircle className="w-4 h-4 mr-1.5" />
+              <XCircle className="mr-1.5 h-4 w-4" />
               Từ chối
             </Button>
           </div>
