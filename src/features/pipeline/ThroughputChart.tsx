@@ -18,8 +18,8 @@ export const ThroughputChart = () => (
       <h3 className="text-sm font-bold text-gray-900">Throughput xử lý</h3>
       <p className="text-xs text-gray-400">Chunks/phút và Tokens/phút theo thời gian thực</p>
     </div>
-    <div className="flex-1">
-      <ResponsiveContainer width="100%" height="100%">
+    <div className="flex-1 min-h-[200px]">
+      <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
         <LineChart data={MOCK_THROUGHPUT} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
           <XAxis

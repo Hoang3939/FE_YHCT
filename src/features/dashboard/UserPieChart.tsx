@@ -25,8 +25,8 @@ export const UserPieChart = () => {
         <p className="text-sm text-gray-500">Cơ cấu người dùng - 12,488 tổng phiên</p>
       </div>
 
-      <div className="flex-1 relative w-full flex items-center justify-center mt-4">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="flex-1 relative w-full flex items-center justify-center mt-4 min-h-[200px]">
+        <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
           <PieChart>
             <Pie
               data={data}

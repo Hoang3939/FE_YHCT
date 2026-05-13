@@ -35,8 +35,8 @@ const data = [
 export const TrafficLineChart = () => {
   return (
     <Card className="col-span-1 lg:col-span-3 h-[400px] flex flex-col pt-6 w-full">
-      <div className="flex-1 w-full relative">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="flex-1 w-full relative min-h-[200px]">
+        <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
           <LineChart
             data={data}
             margin={{
