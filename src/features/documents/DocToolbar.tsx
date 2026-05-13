@@ -52,6 +52,9 @@ export const DocToolbar = ({
       {/* View mode toggle */}
       <div className="flex rounded-lg border border-gray-200 overflow-hidden">
         <button
+          type="button"
+          title="Chuyển sang chế độ xem lưới"
+          aria-label="Chuyển sang chế độ xem lưới"
           onClick={() => onViewModeChange("grid")}
           className={cn(
             "p-2.5 transition-colors",
@@ -61,6 +64,9 @@ export const DocToolbar = ({
           <LayoutGrid size={16} />
         </button>
         <button
+          type="button"
+          title="Chuyển sang chế độ xem danh sách"
+          aria-label="Chuyển sang chế độ xem danh sách"
           onClick={() => onViewModeChange("list")}
           className={cn(
             "p-2.5 transition-colors",

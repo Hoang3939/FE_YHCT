@@ -55,7 +55,12 @@ export const DocCard = ({ doc }: DocCardProps) => {
             <Layers size={18} />
           </div>
         </div>
-        <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors">
+        <button
+          type="button"
+          title={`Tùy chọn cho tài liệu ${doc.title}`}
+          aria-label={`Tùy chọn cho tài liệu ${doc.title}`}
+          className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors"
+        >
           <MoreHorizontal size={16} />
         </button>
       </div>
