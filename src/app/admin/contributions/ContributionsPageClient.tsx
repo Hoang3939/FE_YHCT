@@ -17,7 +17,6 @@ const ContributionsPageClient = () => {
 
   const handleReviewed = () => {
     setRefreshKey((k) => k + 1);
-    setSelectedId(null);
   };
 
   return (

@@ -1,35 +1,59 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { ensureValidAccessToken, readAdminRoleFromAccessToken } from "@/lib/session";
 
 /**
  * Admin role type matching BE AccountRole.
- * 'admin' sees everything; 'expert' sees only contributions.
+ * Only admin/expert may access admin area.
  */
 export type AdminRole = "admin" | "expert";
 
-/**
- * Pragmatic role hook for admin area.
- *
- * Reads role from localStorage key "admin_role".
- * When a real auth system is integrated, replace this with
- * token decoding or profile API call.
- *
- * Default: "admin" (backwards-compatible with existing admin UI).
- */
-export function useRole(): AdminRole {
-  const [role, setRole] = useState<AdminRole>("admin");
+interface RoleState {
+  role: AdminRole | null;
+  isLoading: boolean;
+}
+
+function useRoleState(): RoleState {
+  const [role, setRole] = useState<AdminRole | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("admin_role");
-      if (stored === "expert" || stored === "admin") {
-        setRole(stored);
+    const syncRole = async () => {
+      try {
+        const token = await ensureValidAccessToken();
+        setRole(readAdminRoleFromAccessToken(token));
+      } catch {
+        setRole(null);
+      } finally {
+        setIsLoading(false);
       }
-    } catch {
-      // SSR or localStorage unavailable — keep default
-    }
+    };
+
+    const handleStorage = () => {
+      setIsLoading(true);
+      void syncRole();
+    };
+
+    void syncRole();
+    window.addEventListener("storage", handleStorage);
+
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+    };
   }, []);
 
-  return role;
+  return { role, isLoading };
+}
+
+/**
+ * Resolves admin role from the authenticated access token.
+ * Returns null for regular users, missing tokens, or invalid payloads.
+ */
+export function useRole(): AdminRole | null {
+  return useRoleState().role;
+}
+
+export function useRoleGuard(): RoleState {
+  return useRoleState();
 }

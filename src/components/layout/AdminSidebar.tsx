@@ -17,10 +17,10 @@ import { useRole, type AdminRole } from "@/hooks/useRole";
 
 interface MenuItem {
   name: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: React.ComponentType<{ size?: string | number; className?: string }>;
   href: string;
   /** Which roles can see this item. undefined = all roles */
-  roles?: AdminRole[];
+  roles?: readonly AdminRole[];
 }
 
 /**
@@ -37,13 +37,13 @@ export const AdminSidebar = () => {
     { name: "Quản lý người dùng", icon: Users, href: "/admin/users", roles: ["admin"] },
     { name: "Quản lý tài liệu", icon: FileText, href: "/admin/documents", roles: ["admin"] },
     { name: "Vận hành Pipeline", icon: Activity, href: "/admin/pipeline", roles: ["admin"] },
-    { name: "Duyệt đóng góp", icon: ClipboardCheck, href: "/admin/contributions" },
+    { name: "Duyệt đóng góp", icon: ClipboardCheck, href: "/admin/contributions", roles: ["admin", "expert"] },
     { name: "Góp ý", icon: MessageSquare, href: "/admin/feedbacks", roles: ["admin"] },
     { name: "Cấu hình hệ thống", icon: Settings, href: "/admin/settings", roles: ["admin"] },
   ];
 
   const visibleItems = menuItems.filter(
-    (item) => !item.roles || item.roles.includes(role),
+    (item) => role !== null && (!item.roles || item.roles.includes(role)),
   );
 
   return (

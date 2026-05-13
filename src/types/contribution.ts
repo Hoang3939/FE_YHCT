@@ -5,6 +5,19 @@
 
 export type ContributionType = "medicine" | "herb" | "document";
 export type ContributionStatus = "pending" | "approved" | "rejected";
+export type ContributionAssetType = "pdf" | "docx" | "image" | "zip" | "other";
+
+export interface ContributionAsset {
+  assetId: string;
+  contributionId: string;
+  originalFileName: string;
+  storedFilePath: string;
+  mimeType: string;
+  fileSize: string;
+  checksum: string | null;
+  assetType: ContributionAssetType;
+  createdAt: string;
+}
 
 export interface KnowledgeContribution {
   contributionId: string;
@@ -19,6 +32,29 @@ export interface KnowledgeContribution {
   createdAt: string;
   reviewedAt: string | null;
   reviewerId: string | null;
+  assets?: ContributionAsset[];
+}
+
+export interface CreateContributionPayload {
+  title: string;
+  description?: string;
+  contributionType: ContributionType;
+  reference?: string;
+  filePath?: string;
+}
+
+export interface AddContributionAssetPayload {
+  originalFileName: string;
+  storedFilePath: string;
+  mimeType: string;
+  fileSize: number;
+  checksum?: string;
+  assetType: ContributionAssetType;
+}
+
+export interface ContributionSubmissionResult {
+  contribution: KnowledgeContribution;
+  assets: ContributionAsset[];
 }
 
 export interface ReviewContributionPayload {
@@ -44,4 +80,12 @@ export const CONTRIBUTION_STATUS_COLORS: Record<ContributionStatus, string> = {
   pending: "bg-yellow-100 text-yellow-800",
   approved: "bg-green-100 text-green-800",
   rejected: "bg-red-100 text-red-800",
+};
+
+export const CONTRIBUTION_ASSET_TYPE_LABELS: Record<ContributionAssetType, string> = {
+  pdf: "PDF",
+  docx: "DOCX",
+  image: "Hình ảnh",
+  zip: "ZIP",
+  other: "Khác",
 };

@@ -2,6 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { MessageSquare, Settings, LogOut, ChevronUp, FileUp } from 'lucide-react';
+import { clearSession, ensureValidAccessToken, hasSession, logoutSession } from '@/lib/session';
 
 const AUTH_BASE_URL = process.env.NEXT_PUBLIC_AUTH_BASE_URL ?? 'http://localhost:3001';
 const CHAT_BASE_URL = process.env.NEXT_PUBLIC_CHAT_BASE_URL ?? 'http://localhost:3002';
@@ -38,14 +40,14 @@ export default function ChatPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [currentView, setCurrentView] = useState<'chat' | 'settings'>('chat');
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const [customInstructions, setCustomInstructions] = useState('');
   const [privacyMode, setPrivacyMode] = useState(true);
   const [useMemory, setUseMemory] = useState(true);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
+    if (!hasSession()) {
       router.push('/login');
       return;
     }
@@ -55,26 +57,28 @@ export default function ChatPage() {
 
     const loadProfileAndConversations = async () => {
       try {
-        // Load Profile
-        const profileRes = await fetch(`${AUTH_BASE_URL}/auth/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (profileRes.ok) {
-          const profile = await profileRes.json();
-          setUsername(profile.fullName ?? '');
-          setUserEmail(profile.email ?? '');
-          setCustomInstructions(profile.customInstructions ?? '');
-          if (profile.privacyMode !== undefined) setPrivacyMode(profile.privacyMode);
-          if (profile.useMemory !== undefined) setUseMemory(profile.useMemory);
-        } else {
-          // If profile fails, token might be invalid
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
+        const token = await ensureValidAccessToken();
+        if (!token) {
           router.push('/login');
           return;
         }
 
-        // Load Conversations
+        const profileRes = await fetch(`${AUTH_BASE_URL}/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!profileRes.ok) {
+          clearSession();
+          router.push('/login');
+          return;
+        }
+
+        const profile = await profileRes.json();
+        setUsername(profile.fullName ?? '');
+        setUserEmail(profile.email ?? '');
+        setCustomInstructions(profile.customInstructions ?? '');
+        if (profile.privacyMode !== undefined) setPrivacyMode(profile.privacyMode);
+        if (profile.useMemory !== undefined) setUseMemory(profile.useMemory);
+
         const convRes = await fetch(`${CHAT_BASE_URL}/chat/conversations`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -87,12 +91,11 @@ export default function ChatPage() {
       }
     };
 
-    loadProfileAndConversations();
+    void loadProfileAndConversations();
   }, [router]);
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (!token || !activeConversationId) {
+    if (!activeConversationId) {
       setMessages([]);
       return;
     }
@@ -100,16 +103,22 @@ export default function ChatPage() {
     const loadMessages = async () => {
       setIsLoading(true);
       try {
+        const token = await ensureValidAccessToken();
+        if (!token) {
+          router.push('/login');
+          return;
+        }
+
         const response = await fetch(`${CHAT_BASE_URL}/chat/conversations/${activeConversationId}/messages`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (response.ok) {
           const data = await response.json();
           if (Array.isArray(data)) {
-            setMessages(data.map((m: any) => ({ 
-              role: m.role, 
+            setMessages(data.map((m: any) => ({
+              role: m.role,
               content: m.content,
-              attachments: m.attachments // backend doesn't seem to return this yet, but for future proofing
+              attachments: m.attachments
             })));
           }
         }
@@ -120,35 +129,22 @@ export default function ChatPage() {
       }
     };
 
-    loadMessages();
-  }, [activeConversationId]);
+    void loadMessages();
+  }, [activeConversationId, router]);
 
   const handleLogout = async () => {
     if (isLoggingOut) return;
     setIsLoggingOut(true);
 
-    const token = localStorage.getItem('accessToken');
-    const refreshToken = localStorage.getItem('refreshToken');
-
     try {
-      await fetch(`${AUTH_BASE_URL}/auth/logout`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ refreshToken: refreshToken ?? '' }),
-      });
-    } catch (e) {
-      console.error('Logout error:', e);
-    } finally {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('userFullName');
-      localStorage.removeItem('userEmail');
+      await logoutSession();
       setUsername('');
       setUserEmail('');
       setMessages([]);
+      setConversations([]);
+    } catch (e) {
+      console.error('Logout error:', e);
+    } finally {
       setIsLoggingOut(false);
       router.push('/login');
     }
@@ -482,15 +478,73 @@ export default function ChatPage() {
             </div>
           </div>
           <div className="p-[16px]">
-            <div className="flex items-center gap-[10px] rounded-[10px] bg-[#1b2320] border border-[#28332b] px-[12px] py-[10px] text-[12px] text-[#cfd5cf]">
-              <div className="w-[26px] h-[26px] rounded-[6px] bg-[#00d492] text-[#0c1210] flex items-center justify-center font-semibold text-[14px]">
-                {username ? username.charAt(0).toUpperCase() : 'U'}
-              </div>
-              <div className="flex-1 overflow-hidden">
-                <div className="text-[#e2e7e2] truncate">{username || 'Khách'}</div>
-                <div className="text-[10px] text-[#a7b0aa] truncate">{userEmail}</div>
-              </div>
-              <div className="w-[6px] h-[6px] rounded-full bg-[#00d492]" />
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowUserMenu((prev) => !prev)}
+                className="flex w-full items-center gap-[10px] rounded-[10px] bg-[#1b2320] border border-[#28332b] px-[12px] py-[10px] text-[12px] text-[#cfd5cf] transition-colors hover:bg-[#222c28]"
+              >
+                <div className="w-[26px] h-[26px] rounded-[6px] bg-[#00d492] text-[#0c1210] flex items-center justify-center font-semibold text-[14px]">
+                  {username ? username.charAt(0).toUpperCase() : 'U'}
+                </div>
+                <div className="flex-1 overflow-hidden text-left">
+                  <div className="text-[#e2e7e2] truncate">{username || 'Khách'}</div>
+                  <div className="text-[10px] text-[#a7b0aa] truncate">{userEmail}</div>
+                </div>
+                <ChevronUp
+                  size={14}
+                  className={`transition-transform ${showUserMenu ? '' : 'rotate-180'}`}
+                />
+              </button>
+
+              {showUserMenu ? (
+                <div className="absolute bottom-[calc(100%+8px)] left-0 right-0 z-30 overflow-hidden rounded-[12px] border border-[#28332b] bg-[#131917] shadow-[0_18px_40px_rgba(0,0,0,0.35)]">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCurrentView('settings');
+                      setShowUserMenu(false);
+                    }}
+                    className="flex w-full items-center gap-[10px] px-[12px] py-[10px] text-left text-[12px] text-[#d6ddd8] transition-colors hover:bg-[#1f2824]"
+                  >
+                    <Settings size={14} />
+                    Cài đặt người dùng
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      router.push('/feedback');
+                    }}
+                    className="flex w-full items-center gap-[10px] px-[12px] py-[10px] text-left text-[12px] text-[#d6ddd8] transition-colors hover:bg-[#1f2824]"
+                  >
+                    <MessageSquare size={14} />
+                    Góp ý
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      router.push('/contribute');
+                    }}
+                    className="flex w-full items-center gap-[10px] px-[12px] py-[10px] text-left text-[12px] text-[#d6ddd8] transition-colors hover:bg-[#1f2824]"
+                  >
+                    <FileUp size={14} />
+                    Đóng góp tài liệu
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      void handleLogout();
+                    }}
+                    className="flex w-full items-center gap-[10px] px-[12px] py-[10px] text-left text-[12px] text-[#ffb4b4] transition-colors hover:bg-[#2a1d1d]"
+                  >
+                    <LogOut size={14} />
+                    Đăng xuất
+                  </button>
+                </div>
+              ) : null}
             </div>
           </div>
         </aside>
@@ -507,13 +561,6 @@ export default function ChatPage() {
             </div>
             <div className="flex items-center gap-[8px]">
               <button className="px-[10px] py-[4px] rounded-[8px] bg-[#6b6f6c] text-white text-[11px]">Chia sẻ</button>
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="px-[10px] py-[4px] rounded-[8px] border border-[#2d3931] text-[#cfd5cf] text-[11px] hover:text-white"
-              >
-                {isLoggingOut ? '...' : 'Đăng xuất'}
-              </button>
             </div>
           </header>
 

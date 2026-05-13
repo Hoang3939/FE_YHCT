@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { storeSessionTokens } from '@/lib/session';
 
 const AUTH_BASE_URL = process.env.NEXT_PUBLIC_AUTH_BASE_URL ?? 'http://localhost:3001';
 
@@ -86,12 +87,10 @@ export default function LoginPage() {
       }
 
       /* Store tokens and user info */
-      if (payload?.accessToken) {
-        localStorage.setItem('accessToken', payload.accessToken);
-      }
-      if (payload?.refreshToken) {
-        localStorage.setItem('refreshToken', payload.refreshToken);
-      }
+      storeSessionTokens({
+        accessToken: payload?.accessToken,
+        refreshToken: payload?.refreshToken,
+      });
       if (payload?.fullName) {
         localStorage.setItem('userFullName', payload.fullName);
       }
