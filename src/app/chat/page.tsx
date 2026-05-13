@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
+import { Switch } from '@/components/ui/Switch';
+
 const AUTH_BASE_URL = process.env.NEXT_PUBLIC_AUTH_BASE_URL ?? 'http://localhost:3001';
 const CHAT_BASE_URL = process.env.NEXT_PUBLIC_CHAT_BASE_URL ?? 'http://localhost:3002';
 
@@ -384,17 +386,12 @@ export default function ChatPage() {
                 <span className="font-semibold text-[#cfd5cf]">Chế độ riêng tư</span>
                 <span className="text-[12px] text-[#6f7a73]">Ngăn chặn việc sử dụng dữ liệu của bạn để huấn luyện.</span>
               </div>
-              <div
-                onClick={() => setPrivacyMode(!privacyMode)}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setPrivacyMode(!privacyMode); } }}
+              <Switch
+                checked={privacyMode}
+                onChange={setPrivacyMode}
                 aria-label={privacyMode ? 'Tắt chế độ riêng tư' : 'Bật chế độ riêng tư'}
-                role="switch"
-                aria-checked={privacyMode ? "true" : "false"}
-                tabIndex={0}
-                className={`w-[40px] h-[22px] rounded-full relative transition-colors cursor-pointer ${privacyMode ? 'bg-[#3b82f6]' : 'bg-[#5b605d]'}`}
-              >
-                <div className={`w-[18px] h-[18px] bg-white rounded-full absolute top-[2px] transition-all ${privacyMode ? 'left-[20px]' : 'left-[2px]'}`} />
-              </div>
+                className={privacyMode ? 'bg-[#3b82f6]' : 'bg-[#5b605d]'}
+              />
             </div>
 
             <div className="flex w-full items-center justify-between text-[14px] mt-[12px] border-t border-[#1f2a23] pt-[24px]">
@@ -402,17 +399,12 @@ export default function ChatPage() {
                 <span className="font-semibold text-[#cfd5cf]">Sử dụng bộ nhớ</span>
                 <span className="text-[12px] text-[#6f7a73]">Ghi nhớ các cuộc trò chuyện trước đó và những chi tiết bạn đã chia sẻ.</span>
               </div>
-              <div
-                onClick={() => setUseMemory(!useMemory)}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setUseMemory(!useMemory); } }}
+              <Switch
+                checked={useMemory}
+                onChange={setUseMemory}
                 aria-label={useMemory ? 'Tắt sử dụng bộ nhớ' : 'Bật sử dụng bộ nhớ'}
-                role="switch"
-                aria-checked={useMemory ? "true" : "false"}
-                tabIndex={0}
-                className={`w-[40px] h-[22px] rounded-full relative transition-colors cursor-pointer ${useMemory ? 'bg-[#3b82f6]' : 'bg-[#5b605d]'}`}
-              >
-                <div className={`w-[18px] h-[18px] bg-white rounded-full absolute top-[2px] transition-all ${useMemory ? 'left-[20px]' : 'left-[2px]'}`} />
-              </div>
+                className={useMemory ? 'bg-[#3b82f6]' : 'bg-[#5b605d]'}
+              />
             </div>
           </div>
         </div>
