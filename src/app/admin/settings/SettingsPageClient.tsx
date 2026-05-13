@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { SettingsSidebar } from "@/features/settings/SettingsSidebar";
 import { GeneralSettingsForm } from "@/features/settings/GeneralSettingsForm";
 
@@ -15,21 +15,21 @@ const SettingsPageClient = () => {
   const [activeTab, setActiveTab] = useState<string>("general");
 
   return (
-    <div className="flex flex-col gap-6 max-w-[1400px] mx-auto">
+    <div className="mx-auto flex max-w-[1600px] min-w-0 flex-col gap-6">
       {/* Split View */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-        {/* Left Sidebar (25%) */}
-        <div className="lg:col-span-1">
+      <div className="grid min-w-0 grid-cols-1 items-start gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
+        {/* Left Sidebar */}
+        <div className="min-w-0 xl:sticky xl:top-24">
           <SettingsSidebar activeTab={activeTab} onTabChange={setActiveTab} />
         </div>
 
-        {/* Right Content Form (75%) */}
-        <div className="lg:col-span-3">
+        {/* Right Content Form */}
+        <div className="min-w-0">
           {activeTab === "general" && <GeneralSettingsForm />}
-          
+
           {/* Placeholder cho các tab khác */}
           {activeTab !== "general" && (
-            <div className="bg-white rounded-xl border border-gray-200 h-96 flex items-center justify-center text-gray-400">
+            <div className="flex min-h-[320px] items-center justify-center rounded-xl border border-gray-200 bg-white p-6 text-center text-gray-400 shadow-sm sm:min-h-[384px]">
               <p>Màn hình cấu hình "{activeTab}" đang được phát triển...</p>
             </div>
           )}

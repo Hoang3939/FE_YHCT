@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { Globe, ShieldCheck, Activity, Save, RotateCcw } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
@@ -31,15 +31,15 @@ export const GeneralSettingsForm = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="mb-2">
-        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+    <div className="flex min-w-0 flex-col gap-6">
+      <div className="mb-2 min-w-0">
+        <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100">
             <Globe size={18} className="text-emerald-600" />
           </div>
-          Tổng quát
+          <span className="truncate">Tổng quát</span>
         </h2>
-        <p className="text-sm text-gray-500 mt-1">Cấu hình phân hệ tổng quát</p>
+        <p className="mt-1 text-sm text-gray-500">Cấu hình phân hệ tổng quát</p>
       </div>
 
       {/* 1. Thông tin hệ thống */}
@@ -136,11 +136,11 @@ export const GeneralSettingsForm = () => {
       </SettingSectionCard>
 
       {/* Bottom Actions */}
-      <div className="flex justify-end gap-3 mt-4">
-        <Button variant="outline" className="gap-2" onClick={handleReset}>
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:justify-end">
+        <Button variant="outline" className="w-full gap-2 sm:w-auto" onClick={handleReset}>
           <RotateCcw size={16} /> Đặt lại mặc định
         </Button>
-        <Button variant="default" className="gap-2 px-6">
+        <Button variant="default" className="w-full gap-2 px-6 sm:w-auto">
           <Save size={16} /> Lưu thay đổi
         </Button>
       </div>
