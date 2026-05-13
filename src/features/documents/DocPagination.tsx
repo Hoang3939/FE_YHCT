@@ -37,6 +37,8 @@ export const DocPagination = ({
           <select
             value={pageSize}
             onChange={(e) => { onPageSizeChange(Number(e.target.value)); onPageChange(1); }}
+            title="Chọn số lượng tài liệu trên mỗi trang"
+            aria-label="Chọn số lượng tài liệu trên mỗi trang"
             className="h-8 px-2 border border-gray-200 rounded-lg text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 cursor-pointer"
           >
             {[6, 9, 12, 18].map((s) => (

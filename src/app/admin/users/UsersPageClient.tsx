@@ -59,12 +59,12 @@ const UsersPageClient = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 max-w-[1600px] mx-auto">
+    <div className="mx-auto flex max-w-[1600px] min-w-0 flex-col gap-6">
       {/* Stats cards */}
       <UserSummaryCards />
-
+ 
       {/* Table card */}
-      <Card className="p-6">
+      <Card className="min-w-0 p-4 sm:p-5 lg:p-6">
         <UserTableToolbar
           searchQuery={searchQuery}
           onSearch={handleSearch}

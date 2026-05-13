@@ -38,8 +38,8 @@ const JOB_TYPE_LABELS = {
  * Bảng danh sách jobs với progress bar màu, worker, docs/chunks và action
  */
 export const JobQueueTable = ({ jobs = [] }: { jobs?: Job[] }) => (
-  <Card className="p-5">
-    <div className="flex items-center justify-between mb-4">
+  <Card className="min-w-0 p-4 sm:p-5">
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <h3 className="text-sm font-bold text-gray-900">Hàng chờ & Lịch sử Job</h3>
         <p className="text-xs text-gray-400">Các tiến trình xử lý tài liệu đang chạy và chờ</p>
@@ -48,7 +48,7 @@ export const JobQueueTable = ({ jobs = [] }: { jobs?: Job[] }) => (
     </div>
 
     <div className="overflow-x-auto">
-      <table className="w-full text-sm">
+      <table className="min-w-[900px] w-full text-sm">
         <thead>
           <tr className="border-b border-gray-100">
             {["TÊN JOB", "LOẠI", "TRẠNG THÁI", "TIẾN TRÌNH", "WORKER", "DOCS/CHUNKS", ""].map((h) => (

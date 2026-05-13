@@ -100,13 +100,18 @@ export const UserTable = ({ users }: UserTableProps) => {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm border-collapse">
+      <table className="min-w-[1040px] w-full text-sm border-collapse">
         {/* Head */}
         <thead>
           <tr className="border-b border-gray-100">
             {/* Checkbox col */}
             <th className="w-10 py-3 px-4">
-              <input type="checkbox" className="rounded border-gray-300 accent-emerald-500" />
+              <input
+                type="checkbox"
+                aria-label="Chọn tất cả người dùng"
+                title="Chọn tất cả người dùng"
+                className="rounded border-gray-300 accent-emerald-500"
+              />
             </th>
             {headers.map((h) => (
               <th
@@ -128,7 +133,12 @@ export const UserTable = ({ users }: UserTableProps) => {
             >
               {/* Checkbox */}
               <td className="py-3.5 px-4">
-                <input type="checkbox" className="rounded border-gray-300 accent-emerald-500" />
+                <input
+                  type="checkbox"
+                  aria-label={`Chọn người dùng ${user.name}`}
+                  title={`Chọn người dùng ${user.name}`}
+                  className="rounded border-gray-300 accent-emerald-500"
+                />
               </td>
 
               {/* Người dùng */}
@@ -172,7 +182,11 @@ export const UserTable = ({ users }: UserTableProps) => {
 
               {/* Action */}
               <td className="py-3.5 px-3">
-                <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors">
+                <button
+                  title={`Tác vụ cho ${user.name}`}
+                  aria-label={`Tác vụ cho ${user.name}`}
+                  className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                >
                   <MoreHorizontal size={16} />
                 </button>
               </td>

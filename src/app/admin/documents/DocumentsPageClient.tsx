@@ -239,14 +239,14 @@ export default function DocumentsPageClient() {
   };
 
   return (
-    <div className="max-w-[1600px] mx-auto space-y-6">
-      <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
-        <div className="flex items-center gap-2 mb-4">
+    <div className="mx-auto min-w-0 max-w-[1600px] space-y-6">
+      <section className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
+        <div className="mb-4 flex items-center gap-2">
           <Plus className="w-4 h-4 text-emerald-600" />
           <h2 className="text-base font-semibold text-gray-900">Thêm mới Ebook</h2>
         </div>
 
-        <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={onCreateEbook}>
+        <form className="grid grid-cols-1 gap-4 md:grid-cols-2" onSubmit={onCreateEbook}>
           <div className="space-y-1">
             <label className="text-sm font-medium text-gray-700">Tiêu đề</label>
             <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Nhập tiêu đề Ebook" />
@@ -282,8 +282,8 @@ export default function DocumentsPageClient() {
             <Input type="file" accept="application/pdf" onChange={(e) => setPdfFile(e.target.files?.[0] ?? null)} />
           </div>
 
-          <div className="md:col-span-2 flex justify-end">
-            <Button type="submit" disabled={submitting}>
+          <div className="flex md:col-span-2 md:justify-end">
+            <Button type="submit" disabled={submitting} className="w-full justify-center sm:w-auto">
               {submitting ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Upload className="w-4 h-4 mr-1" />}
               {submitting ? "Đang tạo..." : "Lưu Ebook & Tạo pipeline"}
             </Button>
@@ -291,15 +291,15 @@ export default function DocumentsPageClient() {
         </form>
       </section>
 
-      <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+      <section className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
+        <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <h2 className="text-base font-semibold text-gray-900">Danh sách Ebook</h2>
           <Input
             leftIcon={<Search className="w-4 h-4" />}
             placeholder="Tìm theo tiêu đề / tác giả / danh mục"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full md:w-[360px]"
+            className="w-full lg:w-[360px]"
           />
         </div>
 
@@ -316,7 +316,7 @@ export default function DocumentsPageClient() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="min-w-[860px] w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-200 text-left text-gray-500">
                   <th className="py-3 pr-3">Ebook</th>

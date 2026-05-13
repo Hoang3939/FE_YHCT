@@ -1,16 +1,52 @@
 "use client";
 
-import React from "react";
 import { Card } from "@/components/ui/Card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { formatNumber } from "@/lib/utils";
 
 const data = [
-  { name: "Người dùng đăng ký", value: 7842, color: "#10b981", percent: "62.8%" }, // emerald-500
-  { name: "Khách", value: 3220, color: "#a7f3d0", percent: "25.8%" }, // emerald-200
-  { name: "Chuyên gia y tế", value: 882, color: "#d1fae5", percent: "7.0%" }, // emerald-100
-  { name: "Nghiên cứu sinh", value: 444, color: "#064e3b", percent: "3.5%" }, // emerald-900 
+  {
+    name: "Người dùng đăng ký",
+    value: 7842,
+    color: "#10b981",
+    dotClassName: "bg-emerald-500",
+    percent: "62.8%",
+  },
+  {
+    name: "Khách",
+    value: 3220,
+    color: "#a7f3d0",
+    dotClassName: "bg-emerald-200",
+    percent: "25.8%",
+  },
+  {
+    name: "Chuyên gia y tế",
+    value: 882,
+    color: "#d1fae5",
+    dotClassName: "bg-emerald-100",
+    percent: "7.0%",
+  },
+  {
+    name: "Nghiên cứu sinh",
+    value: 444,
+    color: "#064e3b",
+    dotClassName: "bg-emerald-950",
+    percent: "3.5%",
+  },
 ];
+
+const ChartTooltipContent = ({ active, payload }: { active?: boolean; payload?: Array<{ value: number }> }) => {
+  if (!active || !payload?.length) {
+    return null;
+  }
+
+  return (
+    <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 shadow-lg">
+      <p className="text-sm font-medium text-gray-900">{payload[0].value} người dùng</p>
+      <p className="text-xs text-gray-500">Số lượng</p>
+    </div>
+  );
+};
 
 /**
  * UserPieChart Component
@@ -19,14 +55,14 @@ const data = [
 export const UserPieChart = () => {
 
   return (
-    <Card className="flex flex-col h-[420px]">
+    <Card className="flex min-w-0 flex-col h-[420px]">
       <div>
         <h3 className="text-lg font-bold text-gray-900">Phân loại đối tượng truy cập</h3>
         <p className="text-sm text-gray-500">Cơ cấu người dùng - 12,488 tổng phiên</p>
       </div>
 
-      <div className="flex-1 relative w-full flex items-center justify-center mt-4 min-h-[200px]">
-        <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
+      <div className="relative mt-4 h-[240px] w-full min-w-0">
+        <ResponsiveContainer width="100%" height={240} minWidth={1} minHeight={1}>
           <PieChart>
             <Pie
               data={data}
@@ -43,10 +79,7 @@ export const UserPieChart = () => {
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
-            <Tooltip 
-              formatter={(value) => [`${value} người dùng`, "Số lượng"] as [string, string]}
-              contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-            />
+            <Tooltip content={<ChartTooltipContent />} />
           </PieChart>
         </ResponsiveContainer>
         
@@ -62,10 +95,7 @@ export const UserPieChart = () => {
         {data.map((item, index) => (
           <div key={index} className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2">
-              <span 
-                className="w-3 h-3 rounded-full" 
-                style={{ backgroundColor: item.color }} 
-              />
+              <span className={`h-3 w-3 rounded-full ${item.dotClassName}`} />
               <span className="text-gray-700">{item.name}</span>
             </div>
             <div className="flex items-center gap-3">

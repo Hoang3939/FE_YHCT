@@ -34,9 +34,9 @@ export const UserTableToolbar = ({
   ];
 
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
+    <div className="mb-4 flex flex-col gap-3 xl:flex-row xl:items-center">
       {/* Search Input */}
-      <div className="w-full sm:w-72">
+      <div className="w-full xl:max-w-xs">
         <Input
           leftIcon={<Search size={15} />}
           placeholder="Tên, email, id..."
@@ -45,39 +45,41 @@ export const UserTableToolbar = ({
         />
       </div>
 
-      {/* Filter button */}
-      <Button variant="outline" className="gap-2 whitespace-nowrap h-10">
-        <SlidersHorizontal size={15} />
-        Bộ lọc
-      </Button>
-
-      {/* Tab Chips */}
-      <div className="flex items-center gap-1.5 bg-gray-100 rounded-lg p-1">
-        {tabs.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => onTabChange(tab.key)}
-            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
-              activeTab === tab.key
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Right actions */}
-      <div className="flex items-center gap-2 ml-auto">
-        <Button variant="outline" className="gap-2 whitespace-nowrap h-10">
-          <Download size={15} />
-          Xuất CSV
+      <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-center xl:w-auto xl:flex-1">
+        {/* Filter button */}
+        <Button variant="outline" className="h-10 gap-2 whitespace-nowrap">
+          <SlidersHorizontal size={15} />
+          Bộ lọc
         </Button>
-        <Button className="gap-2 whitespace-nowrap h-10">
-          <Plus size={15} />
-          Thêm người dùng
-        </Button>
+
+        {/* Tab Chips */}
+        <div className="flex w-full flex-wrap items-center gap-1.5 rounded-lg bg-gray-100 p-1 lg:w-auto">
+          {tabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => onTabChange(tab.key)}
+              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
+                activeTab === tab.key
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Right actions */}
+        <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap lg:ml-auto lg:w-auto lg:justify-end">
+          <Button variant="outline" className="h-10 gap-2 whitespace-nowrap">
+            <Download size={15} />
+            Xuất CSV
+          </Button>
+          <Button className="h-10 gap-2 whitespace-nowrap">
+            <Plus size={15} />
+            Thêm người dùng
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -14,7 +14,7 @@ export const EngineStatusBar = () => {
   ];
 
   return (
-    <div className="bg-gray-900 rounded-xl px-5 py-4 mb-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+    <div className="mb-5 flex flex-col gap-4 rounded-xl bg-gray-900 px-4 py-4 sm:px-5 xl:flex-row xl:items-center">
       {/* Engine name + pulse badge */}
       <div className="flex items-center gap-3 shrink-0">
         <Activity size={20} className="text-emerald-400" />
@@ -29,7 +29,7 @@ export const EngineStatusBar = () => {
       </div>
 
       {/* Quick stats */}
-      <div className="flex items-center gap-5 flex-wrap flex-1">
+      <div className="flex flex-1 flex-wrap items-center gap-4 lg:gap-5">
         {quickStats.map((s) => (
           <div key={s.label} className="text-xs">
             <p className="text-gray-500">{s.label}</p>
@@ -39,7 +39,7 @@ export const EngineStatusBar = () => {
       </div>
 
       {/* Action buttons */}
-      <div className="flex items-center gap-2 shrink-0">
+      <div className="flex w-full flex-wrap items-center gap-2 xl:w-auto xl:justify-end">
         <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-300 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors">
           <LayoutDashboard size={13} /> Tổng quan
         </button>
