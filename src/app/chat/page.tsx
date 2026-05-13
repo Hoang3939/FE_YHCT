@@ -423,9 +423,9 @@ export default function ChatPage() {
   );
 
   return (
-    <main className="min-h-screen w-full bg-[#2b2f2b] flex items-center justify-center p-[24px]">
-      <div className="w-[1200px] max-w-full min-h-[720px] rounded-[18px] overflow-hidden border border-[#1f2a23] bg-[#0c1210] shadow-[0_30px_80px_rgba(0,0,0,0.55)] flex">
-        <aside className="w-[280px] border-r border-[#1f2a23] bg-[#0c120f] flex flex-col">
+    <main className="min-h-screen w-full overflow-x-auto bg-[#2b2f2b] text-white">
+      <div className="flex min-h-screen min-w-[768px] bg-[#0c1210]">
+        <aside className="fixed left-0 top-0 h-screen w-64 border-r border-[#1f2a23] bg-[#0c120f] flex flex-col">
           <div className="p-[16px]">
             <button
               onClick={() => {
@@ -501,8 +501,8 @@ export default function ChatPage() {
             </div>
           </div>
         </aside>
-
-        <section className="flex-1 relative flex flex-col">
+ 
+        <section className="relative ml-64 flex min-w-0 flex-1 flex-col">
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:84px_100%] opacity-30 pointer-events-none" />
           <header className="relative z-10 h-[54px] shrink-0 border-b border-[#1f2a23] flex items-center justify-between px-[20px] text-[#cfd5cf] text-[13px]">
 
