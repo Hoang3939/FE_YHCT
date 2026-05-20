@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { ContributionTable } from "@/features/contributions/ContributionTable";
 import { ContributionDetailPanel } from "@/features/contributions/ContributionDetailPanel";
 

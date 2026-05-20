@@ -15,10 +15,19 @@ pipeline {
             }
         }
 
-
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $DOCKER_IMAGE:$DOCKER_TAG .'
+                sh '''
+                export $(cat /opt/secrets/fe-yhct.env | xargs)
+
+                docker build \
+                  --build-arg NEXT_PUBLIC_AUTH_BASE_URL=$NEXT_PUBLIC_AUTH_BASE_URL \
+                  --build-arg NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
+                  --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY \
+                  --build-arg NEXT_PUBLIC_CATALOG_BASE_URL=$NEXT_PUBLIC_CATALOG_BASE_URL \
+                  --build-arg NEXT_PUBLIC_PIPELINE_BASE_URL=$NEXT_PUBLIC_PIPELINE_BASE_URL \
+                  -t $DOCKER_IMAGE:$DOCKER_TAG .
+                '''
             }
         }
 
@@ -48,6 +57,7 @@ pipeline {
 
                 docker run -d \
                 -p 8081:3000 \
+                --env-file /opt/secrets/fe-yhct.env \
                 --name $CONTAINER_NAME \
                 $DOCKER_IMAGE:$DOCKER_TAG
                 '''
