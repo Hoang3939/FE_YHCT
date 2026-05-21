@@ -18,11 +18,11 @@ export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
  */
 export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
   ({ className, options, placeholder, ...props }, ref) => (
-    <div className="relative">
+    <div className="relative w-full">
       <select
         ref={ref}
         className={cn(
-          "h-10 pl-3 pr-8 text-sm bg-white border border-gray-200 rounded-lg",
+          "w-full h-10 pl-3 pr-8 text-sm bg-white border border-gray-200 rounded-lg",
           "text-gray-700 appearance-none cursor-pointer",
           "focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-400",
           "transition-colors",

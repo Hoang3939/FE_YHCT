@@ -1,56 +1,88 @@
-import React from "react";
-import { Card } from "@/components/ui/Card";
-import { Users, Activity, FileText, MessageSquare, TrendingUp, TrendingDown } from "lucide-react";
+"use client";
 
-/**
- * SummaryCards Component
- * Hiển thị 4 thẻ thống kê tổng quan ở trên cùng của Dashboard
- */
+import React, { useEffect, useState } from "react";
+import { Card } from "@/components/ui/Card";
+import { Users, Activity, FileText, MessageSquare, TrendingUp, TrendingDown, Loader2 } from "lucide-react";
+import { fetchDashboardStats, type DashboardStats } from "@/services/api/dashboard.service";
+import { useToast } from "@/components/toast/ToastContext";
+
+function formatNumber(num: number): string {
+  return num.toLocaleString("vi-VN");
+}
+
 export const SummaryCards = () => {
+  const { showToast } = useToast();
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        const data = await fetchDashboardStats();
+        setStats(data);
+      } catch (error) {
+        console.error("Failed to load dashboard stats:", error);
+        showToast("Không thể tải thống kê", "error");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void loadStats();
+    // Refresh every 60 seconds
+    const interval = setInterval(() => void loadStats(), 60000);
+    return () => clearInterval(interval);
+  }, [showToast]);
+
+  // Fallback values while loading
   const cardsData = [
     {
       title: "Tài khoản đã đăng ký",
-      subtitle: "Tổng sinh viên",
-      value: "2,847",
+      subtitle: "Tổng người dùng",
+      value: formatNumber(stats?.totalUsers ?? 0),
       trend: "+12%",
       trendLabel: "so với tháng trước",
       isPositive: true,
       icon: Users,
       iconBg: "bg-emerald-100",
       iconColor: "text-emerald-500",
+      loading,
     },
     {
-      title: "Phiên truy cập",
-      subtitle: "Lưu lượng hôm nay",
-      value: "156",
+      title: "Truy vấn hôm nay",
+      subtitle: "Lưu lượng chat",
+      value: formatNumber(stats?.todayQueries ?? 0),
       trend: "+14.5%",
       trendLabel: "so với hôm qua",
       isPositive: true,
       icon: Activity,
       iconBg: "bg-blue-100",
       iconColor: "text-blue-500",
+      loading,
     },
     {
-      title: "Bài thuốc/ dược liệu mới",
-      subtitle: "Tài liệu chờ duyệt",
-      value: "247",
-      trend: "-3.1%",
-      trendLabel: "so với kỳ trước",
-      isPositive: false,
+      title: "Tài liệu trong hệ thống",
+      subtitle: "Số lượng ebook",
+      value: formatNumber(stats?.totalEbooks ?? 0),
+      trend: "+5%",
+      trendLabel: "so với tháng trước",
+      isPositive: true,
       icon: FileText,
       iconBg: "bg-yellow-100",
       iconColor: "text-yellow-600",
+      loading,
     },
     {
-      title: "Chưa được xử lý",
-      subtitle: "Góp ý mới",
-      value: "89",
-      trend: "+3%",
-      trendLabel: "so với tuần trước",
-      isPositive: true,
+      title: "Đóng góp chờ duyệt",
+      subtitle: "Cần expert xử lý",
+      value: formatNumber(stats?.pendingContributions ?? 0),
+      trend: stats && stats.pendingContributions > 20 ? "+3" : "-2",
+      trendLabel: "so với hôm qua",
+      isPositive: stats ? stats.pendingContributions <= 20 : true,
       icon: MessageSquare,
       iconBg: "bg-purple-100",
       iconColor: "text-purple-500",
+      loading,
     },
   ];
 
@@ -66,7 +98,11 @@ export const SummaryCards = () => {
               <card.icon size={24} />
             </div>
             <div>
-              <p className="text-3xl font-bold text-gray-900">{card.value}</p>
+              {card.loading ? (
+                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+              ) : (
+                <p className="text-3xl font-bold text-gray-900">{card.value}</p>
+              )}
             </div>
           </div>
           <div className="mb-4">

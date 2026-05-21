@@ -9,7 +9,7 @@ import { Footer } from '@/components/Footer';
 export default function LandingPage() {
   return (
     <main className="w-full min-h-screen bg-[#0b140d] flex justify-center overflow-x-hidden">
-      <div className="w-[1440px] flex flex-col items-center relative text-center text-[18px] text-[#00d492] font-['Inter'] shrink-0 pb-[100px]">
+      <div className="w-full max-w-[1440px] flex flex-col items-center relative text-center text-lg text-[#00d492] font-sans shrink-0 pb-24">
         <Header />
         <HeroSection />
         <HowItWorks />

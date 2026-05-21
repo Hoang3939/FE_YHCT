@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ToastProvider } from "@/components/toast/ToastContext";
 
 export const metadata: Metadata = {
   title: "Y-RAG - Nền tảng Y học cổ truyền",
@@ -13,7 +14,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi">
-      <body>{children}</body>
+      <body>
+        <ToastProvider>
+          {children}
+        </ToastProvider>
+      </body>
     </html>
   );
 }

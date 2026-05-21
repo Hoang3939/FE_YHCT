@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { FeedbackTabs, type FeedbackTabKey } from "@/features/feedbacks/FeedbackTabs";
 import { FeedbackRow } from "@/features/feedbacks/FeedbackRow";
-import { MOCK_FEEDBACKS } from "@/types/feedback";
 import type { Feedback } from "@/types/feedback";
 import { sortFeedbacks } from "@/lib/utils";
 import { fetchFeedbacks } from "@/services/api/feedback.service";
@@ -23,7 +22,8 @@ interface FeedbackListProps {
  * Cột trái của Split View: tiêu đề, filter, tabs, bảng danh sách góp ý với sort.
  */
 export const FeedbackList = ({ selectedId, onSelect }: FeedbackListProps) => {
-  const [feedbacks, setFeedbacks] = useState<Feedback[]>(MOCK_FEEDBACKS);
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [loadingList, setLoadingList] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab]     = useState<FeedbackTabKey>("all");
   const [sortKey, setSortKey]         = useState<SortKey>("createdAt");
@@ -32,13 +32,12 @@ export const FeedbackList = ({ selectedId, onSelect }: FeedbackListProps) => {
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
+      setLoadingList(true);
       try {
         const data = await fetchFeedbacks();
-        if (!cancelled) {
-          setFeedbacks(data);
-        }
-      } catch {
-        // API unavailable — keep MOCK_FEEDBACKS as fallback
+        if (!cancelled) setFeedbacks(data);
+      } catch { /* API unavailable */ } finally {
+        if (!cancelled) setLoadingList(false);
       }
     };
     void load();
@@ -137,10 +136,21 @@ export const FeedbackList = ({ selectedId, onSelect }: FeedbackListProps) => {
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 && (
+            {loadingList && (
+              Array.from({ length: 5 }).map((_, i) => (
+                <tr key={i} className="border-b border-gray-50">
+                  {Array.from({ length: 7 }).map((__, j) => (
+                    <td key={j} className="px-3 py-3">
+                      <div className="h-3 bg-gray-100 rounded animate-pulse" />
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
+            {!loadingList && filtered.length === 0 && (
               <tr>
                 <td colSpan={7} className="py-12 text-center text-sm text-gray-400">
-                  Không có góp ý nào phù hợp.
+                  {feedbacks.length === 0 ? "Chưa có góp ý nào." : "Không có góp ý nào phù hợp."}
                 </td>
               </tr>
             )}

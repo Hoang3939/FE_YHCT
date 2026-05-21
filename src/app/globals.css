@@ -1,5 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Geist:ital,wght@0,400;0,500&display=swap');
 
 @tailwind base;
@@ -7,16 +7,82 @@
 @tailwind utilities;
 
 :root {
-  --background: #f9fafb;
-  --foreground: #111827;
+  --background: #f5f7f4;
+  --foreground: #152018;
+  --surface: #ffffff;
+  --surface-muted: #eef3ed;
+  --border-subtle: rgba(21, 32, 24, 0.08);
+  --brand: #0f8f67;
+  --brand-dark: #0a6a4d;
+  --brand-foreground: #f4fbf7;
+  --muted: #647067;
+  --heading-font: "Playfair Display", ui-serif, Georgia, serif;
+  --body-font: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
-  line-height: normal;
+  min-height: 100vh;
   background: var(--background);
   color: var(--foreground);
-  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--body-font);
+  line-height: 1.5;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  color: var(--foreground);
+  font-family: var(--heading-font);
+  letter-spacing: -0.02em;
+}
+
+p {
+  margin: 0;
+}
+
+.font-display {
+  font-family: var(--heading-font);
+}
+
+.font-body {
+  font-family: var(--body-font);
+}
+
+.app-shell {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, rgba(15, 143, 103, 0.08), transparent 30%),
+    var(--background);
+}
+
+.card-surface {
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 50px rgba(15, 31, 22, 0.06);
+  backdrop-filter: blur(18px);
 }
 
 .hide-scrollbar::-webkit-scrollbar {
@@ -29,8 +95,8 @@ body {
 }
 
 ::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -38,10 +104,10 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 2px;
+  background: #c5d0c7;
+  border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: #95a497;
 }

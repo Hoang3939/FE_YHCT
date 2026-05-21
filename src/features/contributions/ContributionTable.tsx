@@ -4,8 +4,17 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { ContributionRow } from "@/features/contributions/ContributionRow";
-import { fetchContributions } from "@/services/api/contribution.service";
-import type { KnowledgeContribution, ContributionStatus } from "@/types/contribution";
+import {
+  fetchContributions,
+  fetchLatestContributionPipeline,
+} from "@/services/api/contribution.service";
+
+const CATALOG_BASE_URL = process.env.NEXT_PUBLIC_CATALOG_BASE_URL || 'http://localhost:3004';
+import type {
+  KnowledgeContribution,
+  ContributionStatus,
+  ContributionPipelineJob,
+} from "@/types/contribution";
 
 type TabKey = "all" | ContributionStatus;
 
@@ -34,11 +43,50 @@ export const ContributionTable = ({
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabKey>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [pipelineJobs, setPipelineJobs] = useState<Record<string, ContributionPipelineJob | null>>({});
+  const [pipelineLoading, setPipelineLoading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
 
-    const load = async () => {
+    const loadPipelines = async (items: KnowledgeContribution[]) => {
+      const approvedIds = items
+        .filter((item) => item.status === "approved")
+        .map((item) => item.contributionId);
+
+      if (approvedIds.length === 0) {
+        if (!cancelled) {
+          setPipelineJobs({});
+          setPipelineLoading(false);
+        }
+        return;
+      }
+
+      setPipelineLoading(true);
+
+      try {
+        const results = await Promise.all(
+          approvedIds.map(async (contributionId) => {
+            try {
+              const job = await fetchLatestContributionPipeline(contributionId);
+              return [contributionId, job] as const;
+            } catch {
+              return [contributionId, null] as const;
+            }
+          }),
+        );
+
+        if (!cancelled) {
+          setPipelineJobs((prev) => ({ ...prev, ...Object.fromEntries(results) }));
+        }
+      } finally {
+        if (!cancelled) {
+          setPipelineLoading(false);
+        }
+      }
+    };
+
+    const loadContributions = async () => {
       setLoading(true);
       setError(null);
       try {
@@ -46,6 +94,7 @@ export const ContributionTable = ({
         if (!cancelled) {
           setContributions(data);
         }
+        await loadPipelines(data);
       } catch (err: unknown) {
         if (!cancelled) {
           const message =
@@ -59,11 +108,62 @@ export const ContributionTable = ({
       }
     };
 
-    void load();
+    void loadContributions();
+
     return () => {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (contributions.length === 0) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const refreshPipelines = async () => {
+      const approvedItems = contributions.filter((item) => item.status === "approved");
+      if (approvedItems.length === 0) {
+        if (!cancelled) {
+          setPipelineJobs({});
+          setPipelineLoading(false);
+        }
+        return;
+      }
+
+      setPipelineLoading(true);
+      try {
+        const results = await Promise.all(
+          approvedItems.map(async (item) => {
+            try {
+              const job = await fetchLatestContributionPipeline(item.contributionId);
+              return [item.contributionId, job] as const;
+            } catch {
+              return [item.contributionId, null] as const;
+            }
+          }),
+        );
+
+        if (!cancelled) {
+          setPipelineJobs((prev) => ({ ...prev, ...Object.fromEntries(results) }));
+        }
+      } finally {
+        if (!cancelled) {
+          setPipelineLoading(false);
+        }
+      }
+    };
+
+    const interval = window.setInterval(() => {
+      void refreshPipelines();
+    }, 1500);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [contributions]);
 
   const filtered = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
@@ -137,7 +237,9 @@ export const ContributionTable = ({
                 <th className="py-2.5 px-3 text-left font-medium">Loại</th>
                 <th className="py-2.5 px-3 text-left font-medium">Trạng thái</th>
                 <th className="py-2.5 px-3 text-left font-medium">Ngày tạo</th>
+                <th className="py-2.5 px-3 text-left font-medium">Pipeline</th>
                 <th className="py-2.5 px-3 text-left font-medium">Ngày duyệt</th>
+                <th className="py-2.5 px-3 text-left font-medium">Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -145,8 +247,26 @@ export const ContributionTable = ({
                 <ContributionRow
                   key={c.contributionId}
                   contribution={c}
+                  pipelineJob={pipelineJobs[c.contributionId] ?? null}
+                  pipelineLoading={pipelineLoading}
                   onClick={onSelect}
                   selected={selectedId === c.contributionId}
+                  onPublish={async (ebookId) => {
+                    try {
+                      const token = localStorage.getItem('accessToken');
+                      const res = await fetch(`${CATALOG_BASE_URL}/ebooks/${ebookId}/publish`, {
+                        method: 'PATCH',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'Authorization': `Bearer ${token}`,
+                        },
+                      });
+                      if (!res.ok) throw new Error('Xuất bản thất bại.');
+                      alert('Đã xuất bản ebook thành công.');
+                    } catch (error) {
+                      alert(error instanceof Error ? error.message : 'Xuất bản thất bại.');
+                    }
+                  }}
                 />
               ))}
             </tbody>

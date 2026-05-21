@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { FeedbackSummaryCards }      from "@/features/feedbacks/FeedbackSummaryCards";
 import { FeedbackStatusBar }         from "@/features/feedbacks/FeedbackStatusBar";
 import { FeedbackList }              from "@/features/feedbacks/FeedbackList";
 import { FeedbackDetailPlaceholder } from "@/features/feedbacks/FeedbackDetailPlaceholder";
+import { useToast } from "@/components/toast/ToastContext";
 
 /**
  * FeedbacksPageClient
@@ -17,6 +18,7 @@ import { FeedbackDetailPlaceholder } from "@/features/feedbacks/FeedbackDetailPl
  *      - FeedbackDetailPlaceholder (placeholder cột phải)
  */
 const FeedbacksPageClient = () => {
+  const { showToast } = useToast();
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   return (

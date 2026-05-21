@@ -16,6 +16,10 @@ interface UserTableToolbarProps {
   activeTab: TabFilter;
   /** Callback khi đổi tab */
   onTabChange: (tab: TabFilter) => void;
+  /** Callback khi xuất CSV */
+  onExportCSV?: () => void | Promise<void>;
+  /** Callback khi nhấn Thêm người dùng */
+  onAddUser?: () => void;
 }
 
 /**
@@ -27,6 +31,8 @@ export const UserTableToolbar = ({
   onSearch,
   activeTab,
   onTabChange,
+  onExportCSV,
+  onAddUser,
 }: UserTableToolbarProps) => {
   const tabs: { key: TabFilter; label: string }[] = [
     { key: "all", label: "Tất cả" },
@@ -34,7 +40,7 @@ export const UserTableToolbar = ({
   ];
 
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
+    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
       {/* Search Input */}
       <div className="w-full sm:w-72">
         <Input
@@ -70,11 +76,11 @@ export const UserTableToolbar = ({
 
       {/* Right actions */}
       <div className="flex items-center gap-2 ml-auto">
-        <Button variant="outline" className="gap-2 whitespace-nowrap h-10">
+        <Button variant="outline" className="gap-2 whitespace-nowrap h-10" onClick={onExportCSV}>
           <Download size={15} />
           Xuất CSV
         </Button>
-        <Button className="gap-2 whitespace-nowrap h-10">
+        <Button className="gap-2 whitespace-nowrap h-10" onClick={onAddUser}>
           <Plus size={15} />
           Thêm người dùng
         </Button>

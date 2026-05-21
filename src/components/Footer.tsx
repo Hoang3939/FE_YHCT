@@ -1,59 +1,79 @@
+import Link from "next/link";
+
+const FOOTER_GROUPS = [
+  {
+    title: "Khám phá",
+    links: [
+      { label: "Chat AI", href: "/chat" },
+      { label: "Thư viện", href: "/library" },
+      { label: "Đóng góp tài liệu", href: "/contribute" },
+    ],
+  },
+  {
+    title: "Hỗ trợ",
+    links: [
+      { label: "Gửi góp ý", href: "/feedback" },
+      { label: "Đăng nhập", href: "/login" },
+      { label: "Đăng ký", href: "/register" },
+    ],
+  },
+  {
+    title: "Nền tảng",
+    links: [
+      { label: "RAG pipeline", href: "/admin/pipeline" },
+      { label: "Quản trị tài liệu", href: "/admin/documents" },
+      { label: "Bảng điều khiển", href: "/admin/dashboard" },
+    ],
+  },
+] as const;
+
 export const Footer = () => {
   return (
-    <div className="w-[1440px] flex flex-col items-center px-[20px] pb-[20px] box-border text-left text-[14px] text-[#fbf7ef] font-['Geist'] z-50 mt-[50px]">
-      <div className="w-full shadow-[0px_4px_24px_rgba(0,0,0,0.04)] backdrop-blur-[84px] rounded-[20px] bg-[rgba(75,82,73,0.32)] border border-[rgba(159,163,198,0.2)] box-border flex flex-col items-end p-[40px_40px_20px] gap-[131px] max-w-full">
-        <div className="self-stretch flex items-start gap-[16px]">
-          {/* Resources Col 1 */}
-          <div className="flex-1 flex flex-col items-start gap-[12px]">
-            <div className="relative leading-[100%] font-medium">Resources</div>
-            <div className="relative leading-[100%] cursor-pointer hover:underline text-[#dad4cb]">Documentation</div>
-            <div className="relative leading-[100%] cursor-pointer hover:underline text-[#dad4cb]">Blog</div>
-            <div className="relative leading-[100%] cursor-pointer hover:underline text-[#dad4cb]">Community</div>
-          </div>
-          
-          {/* Resources Col 2 */}
-          <div className="flex-1 flex flex-col items-start gap-[12px]">
-            <div className="relative leading-[100%] font-medium">Resources</div>
-            <div className="relative leading-[100%] cursor-pointer hover:underline text-[#dad4cb]">Documentation</div>
-            <div className="relative leading-[100%] cursor-pointer hover:underline text-[#dad4cb]">Blog</div>
-            <div className="relative leading-[100%] cursor-pointer hover:underline text-[#dad4cb]">Community</div>
+    <footer className="w-full px-4 pb-8 pt-6 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl rounded-[28px] border border-white/10 bg-[rgba(18,28,22,0.86)] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.22)] backdrop-blur-2xl sm:p-8 lg:p-10">
+        <div className="grid gap-10 lg:grid-cols-[1.3fr_2fr] lg:gap-12">
+          <div>
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-700 text-base font-bold text-white shadow-lg shadow-emerald-500/20">
+                Y
+              </div>
+              <div>
+                <p className="font-display text-2xl font-semibold text-white">Y-RAG</p>
+                <p className="text-sm text-[#9fb0a5]">Tri thức YHCT minh xác, dễ tra cứu và dễ đóng góp hơn.</p>
+              </div>
+            </div>
+
+            <p className="mt-5 max-w-xl text-sm leading-7 text-[#c7d0c9]">
+              Nền tảng hỗ trợ tra cứu, số hóa và quản trị tài liệu Y học cổ truyền với quy trình RAG
+              rõ ràng hơn cho cả người dùng cuối lẫn đội vận hành.
+            </p>
           </div>
 
-          {/* Sản phẩm */}
-          <div className="flex-1 flex flex-col items-start gap-[12px]">
-            <div className="relative leading-[100%] font-medium">Sản phẩm</div>
-            <div className="relative leading-[100%] cursor-pointer hover:underline text-[#dad4cb]">Y-RAG</div>
-            <div className="relative leading-[100%] cursor-pointer hover:underline text-[#dad4cb]">E-book</div>
-            <div className="relative leading-[100%] cursor-pointer hover:underline text-[#dad4cb]">Dashboard</div>
-          </div>
-
-          {/* Liên hệ */}
-          <div className="flex-1 flex flex-col items-start gap-[12px]">
-            <div className="relative leading-[100%] font-medium">Liên hệ</div>
-            <div className="relative leading-[100%] cursor-pointer hover:underline text-[#dad4cb]">X</div>
-            <div className="relative leading-[100%] cursor-pointer hover:underline text-[#dad4cb]">Instagram</div>
-            <div className="relative leading-[100%] cursor-pointer hover:underline text-[#dad4cb]">Linkedin</div>
-          </div>
-
-          {/* Chính sách */}
-          <div className="flex-1 flex flex-col items-start gap-[12px]">
-            <div className="relative leading-[100%] cursor-pointer hover:underline text-[#dad4cb]">Chính sách</div>
-            <div className="relative leading-[100%] cursor-pointer hover:underline text-[#dad4cb]">Bảo mật</div>
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {FOOTER_GROUPS.map((group) => (
+              <div key={group.title} className="space-y-3">
+                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#8fe1bf]">{group.title}</p>
+                <div className="grid gap-2.5">
+                  {group.links.map((link) => (
+                    <Link
+                      key={link.label}
+                      href={link.href}
+                      className="text-sm text-[#d9e1db] transition-colors hover:text-white"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Bottom */}
-        <div className="self-stretch flex items-end justify-between gap-[20px]">
-          <div className="relative leading-[100%]">©2026 Team7.</div>
-          <div className="h-[48.1px] flex items-center p-[6.9px_11.1px] box-border gap-[5.6px] text-[27.75px] font-['Playfair_Display'] text-white">
-            <div className="flex items-center">
-              <div className="w-[27.8px] h-[27.8px] bg-gray-500 rounded-full"></div>
-            </div>
-            <div className="relative leading-[125%]">LOGO</div>
-          </div>
-          <div className="relative leading-[100%]">©2025 Discourse Inc.</div>
+        <div className="mt-10 flex flex-col gap-3 border-t border-white/10 pt-5 text-sm text-[#93a199] sm:flex-row sm:items-center sm:justify-between">
+          <span>©2026 Team7 · Y-RAG platform.</span>
+          <span>Thiết kế lại để ưu tiên điều hướng, khả năng đọc và quy trình RAG rõ ràng hơn.</span>
         </div>
       </div>
-    </div>
+    </footer>
   );
 };

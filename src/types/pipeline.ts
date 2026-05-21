@@ -8,6 +8,7 @@ export type JobStatus   = "running" | "queued" | "success" | "failed" | "paused"
 export type LogLevel    = "INFO" | "SUCCESS" | "WARNING" | "ERROR" | "DEBUG";
 export type WorkerState = "active" | "idle" | "error" | "offline";
 export type StepStatus  = "done" | "active" | "pending" | "error";
+export type JobType = "batch_import" | "crawl" | "re_embed" | "manual" | "contribution_queue";
 
 // ─── Interfaces ───────────────────────────────────────────────────────────────
 
@@ -24,7 +25,7 @@ export interface PipelineStep {
 export interface Job {
   id: string;
   name: string;
-  type: "batch_import" | "crawl" | "re_embed" | "manual";
+  type: JobType;
   status: JobStatus;
   /** 0-100 */
   progress: number;
@@ -32,8 +33,14 @@ export interface Job {
   docsTotal: number;
   docsProcessed: number;
   chunksGenerated: number;
-  startedAt: string;    // ISO string
-  estimatedEnd: string; // ISO string
+  startedAt?: string | null;
+  estimatedEnd?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  backendStatus?: string;
+  currentStep?: string | null;
+  fileName?: string | null;
+  errorMessage?: string | null;
 }
 
 /** Worker node đang chạy */
@@ -76,111 +83,19 @@ export interface ThroughputPoint {
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
-export const MOCK_PIPELINE_STATS: PipelineStats = {
-  jobsToday:        24,
-  completed:        19,
-  failed:            2,
-  queued:            3,
-  chunksCreated:  4_892,
-  tokensProcessed: "2.4M",
-  avgTimeSeconds:   184,
-  successRate:     91.7,
-};
-
-export const MOCK_PIPELINE_STEPS: PipelineStep[] = [
-  { id: "collect",   label: "Thu thập",   sublabel: "OCR / Crawl",      status: "done",    icon: "Download"    },
-  { id: "analyze",   label: "Phân tích",  sublabel: "LLM Cleaning",     status: "done",    icon: "Braces"      },
-  { id: "segment",   label: "Phân đoạn",  sublabel: "Chunking",         status: "done",    icon: "Scissors"    },
-  { id: "vectorize", label: "Vector hóa", sublabel: "Embedding",        status: "active",  icon: "Layers"      },
-  { id: "store",     label: "Lưu trữ",    sublabel: "Vector DB",        status: "pending", icon: "Database"    },
-  { id: "verify",    label: "Kiểm tra",   sublabel: "QA / Validation",  status: "pending", icon: "ShieldCheck" },
+export const DEFAULT_PIPELINE_STEPS: PipelineStep[] = [
+  { id: "collect", label: "Thu thập", sublabel: "Nhận tài liệu", status: "pending", icon: "Download" },
+  { id: "analyze", label: "Làm sạch", sublabel: "Tiền xử lý", status: "pending", icon: "Braces" },
+  { id: "segment", label: "Phân đoạn", sublabel: "Chunking", status: "pending", icon: "Scissors" },
+  { id: "vectorize", label: "Vector hóa", sublabel: "Embedding", status: "pending", icon: "Layers" },
+  { id: "store", label: "Lưu trữ", sublabel: "Vector DB", status: "pending", icon: "Database" },
+  { id: "verify", label: "Hoàn tất", sublabel: "Kiểm tra & xuất bản", status: "pending", icon: "ShieldCheck" },
 ];
 
 export const MOCK_WORKERS: WorkerNode[] = [
   { id: "W1",   name: "Pipeline Worker #1", state: "active",  cpuUsage: 78, ramUsage: 62, activeJobs: 2, jobsToday: 11 },
   { id: "W2",   name: "Pipeline Worker #2", state: "active",  cpuUsage: 54, ramUsage: 48, activeJobs: 1, jobsToday:  8 },
   { id: "SCH",  name: "Scheduler Service",  state: "idle",    cpuUsage:  8, ramUsage: 24, activeJobs: 0, jobsToday:  5 },
-];
-
-export const MOCK_JOBS: Job[] = [
-  {
-    id: "JOB-001",
-    name: "Batch import: Lãn Ông tâm lĩnh",
-    type: "batch_import",
-    status: "running",
-    progress: 72,
-    workerId: "W1",
-    docsTotal: 6,
-    docsProcessed: 4,
-    chunksGenerated: 142,
-    startedAt: "2026-03-19T06:52:00Z",
-    estimatedEnd: "2026-03-19T07:10:00Z",
-  },
-  {
-    id: "JOB-002",
-    name: "Crawl tạp chí Y học cổ truyền VN",
-    type: "crawl",
-    status: "running",
-    progress: 45,
-    workerId: "W1",
-    docsTotal: 22,
-    docsProcessed: 10,
-    chunksGenerated: 310,
-    startedAt: "2026-03-19T07:00:00Z",
-    estimatedEnd: "2026-03-19T07:25:00Z",
-  },
-  {
-    id: "JOB-003",
-    name: "Re-embed: Dược điển Việt Nam V",
-    type: "re_embed",
-    status: "running",
-    progress: 88,
-    workerId: "W2",
-    docsTotal: 1,
-    docsProcessed: 1,
-    chunksGenerated: 412,
-    startedAt: "2026-03-19T07:05:00Z",
-    estimatedEnd: "2026-03-19T07:12:00Z",
-  },
-  {
-    id: "JOB-004",
-    name: "Batch import: Kinh nghiệm lâm sàng T3",
-    type: "batch_import",
-    status: "queued",
-    progress: 0,
-    workerId: "-",
-    docsTotal: 4,
-    docsProcessed: 0,
-    chunksGenerated: 0,
-    startedAt: "-",
-    estimatedEnd: "-",
-  },
-  {
-    id: "JOB-005",
-    name: "Crawl suckhoevadoisong.vn (mới)",
-    type: "crawl",
-    status: "queued",
-    progress: 0,
-    workerId: "-",
-    docsTotal: 50,
-    docsProcessed: 0,
-    chunksGenerated: 0,
-    startedAt: "-",
-    estimatedEnd: "-",
-  },
-  {
-    id: "JOB-006",
-    name: "Re-embed: Bộ sưu tập bài thuốc dân gian",
-    type: "re_embed",
-    status: "failed",
-    progress: 34,
-    workerId: "W2",
-    docsTotal: 8,
-    docsProcessed: 3,
-    chunksGenerated: 88,
-    startedAt: "2026-03-19T06:40:00Z",
-    estimatedEnd: "-",
-  },
 ];
 
 export const MOCK_LOGS: LogEntry[] = [

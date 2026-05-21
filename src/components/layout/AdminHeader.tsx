@@ -1,51 +1,55 @@
+"use client";
+
 import React from "react";
 import { Button } from "@/components/ui/Button";
-import { Bell, Download, RefreshCw, Calendar as CalendarIcon, ChevronDown } from "lucide-react";
+import { Bell, RefreshCw, Calendar as CalendarIcon, Menu } from "lucide-react";
 
-/**
- * AdminHeader Component
- * Header topbar hiển thị tiêu đề, ngày tháng hiện tại, nút xuất báo cáo và thông báo
- */
-export const AdminHeader = () => {
-  // Mock current date format like wireframe: "Thứ Ba, 03/03/2026 - Dữ liệu thời gian thực"
-  const formattedDate = "Thứ Ba, 03/03/2026 - Dữ liệu thời gian thực";
+interface AdminHeaderProps {
+  onOpenSidebar?: () => void;
+}
+
+export const AdminHeader = ({ onOpenSidebar }: AdminHeaderProps) => {
+  const formattedDate = new Intl.DateTimeFormat("vi-VN", {
+    weekday: "long",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(new Date());
 
   return (
-    <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 sticky top-0 z-10 w-full">
-      {/* Title & Date */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Tổng quan hệ thống</h1>
-        <p className="text-sm text-gray-500 mt-1">{formattedDate}</p>
-      </div>
-
-      {/* Actions */}
-      <div className="flex items-center gap-4">
-        {/* Month Dropdown Selector */}
-        <div className="relative">
-          <button className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 h-10 px-4 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors shadow-sm">
-            <CalendarIcon size={16} className="text-gray-400" />
-            Tháng 3, 2026
-            <ChevronDown size={16} className="text-gray-400 ml-1" />
+    <header className="sticky top-0 z-20 w-full border-b border-gray-100 bg-white/95 backdrop-blur">
+      <div className="flex min-h-20 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={onOpenSidebar}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900 lg:hidden"
+            aria-label="Mở thanh điều hướng quản trị"
+          >
+            <Menu size={18} />
           </button>
+          <div>
+            <h1 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">Tổng quan hệ thống</h1>
+            <p className="mt-1 text-sm text-gray-500">{formattedDate} · Dữ liệu vận hành đang được đồng bộ</p>
+          </div>
         </div>
 
-        {/* Refresh Button */}
-        <Button variant="icon" title="Làm mới dữ liệu">
-          <RefreshCw size={18} />
-        </Button>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="hidden items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm md:flex">
+            <CalendarIcon size={16} className="text-gray-400" />
+            Hôm nay
+          </div>
 
-        {/* Export Button */}
-        <Button variant="outline" className="gap-2">
-          <Download size={16} />
-          Xuất báo cáo
-        </Button>
-
-        {/* Notifications */}
-        <div className="relative ml-2">
-          <Button variant="icon" className="relative">
-            <Bell size={18} />
-            <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+          <Button variant="icon" title="Làm mới dữ liệu">
+            <RefreshCw size={18} />
           </Button>
+
+          <div className="relative">
+            <Button variant="icon" className="relative" title="Thông báo hệ thống">
+              <Bell size={18} />
+              <span className="absolute right-2.5 top-2 h-2 w-2 rounded-full border border-white bg-red-500"></span>
+            </Button>
+          </div>
         </div>
       </div>
     </header>

@@ -98,7 +98,7 @@ export default function LoginPage() {
         localStorage.setItem('userEmail', payload.email);
       }
 
-      window.location.href = '/chat';
+      window.location.href = '/';
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Đăng nhập thất bại');
     } finally {

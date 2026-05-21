@@ -1,6 +1,6 @@
 import React from "react";
 import { Badge } from "@/components/ui/Badge";
-import type { KnowledgeContribution } from "@/types/contribution";
+import type { ContributionPipelineJob, KnowledgeContribution } from "@/types/contribution";
 import {
   CONTRIBUTION_TYPE_LABELS,
   CONTRIBUTION_STATUS_LABELS,
@@ -20,21 +20,39 @@ const TYPE_CLS: Record<string, string> = {
   document: "text-blue-600 bg-blue-50",
 };
 
-/** Format ISO string → DD/MM/YYYY HH:MM */
+const PIPELINE_STATUS_LABELS: Record<NonNullable<ContributionPipelineJob["status"]>, string> = {
+  queued: "Đang chờ",
+  running: "Đang chạy",
+  success: "Hoàn tất",
+  failed: "Lỗi",
+};
+
+const PIPELINE_STATUS_VARIANT: Record<NonNullable<ContributionPipelineJob["status"]>, "brand" | "warning" | "success" | "error"> = {
+  queued: "warning",
+  running: "brand",
+  success: "success",
+  failed: "error",
+};
+
+/** Format ISO string theo giờ địa phương */
 function formatDate(iso: string): string {
-  const d = new Date(iso);
-  const dd = String(d.getUTCDate()).padStart(2, "0");
-  const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
-  const yyyy = d.getUTCFullYear();
-  const hh = String(d.getUTCHours()).padStart(2, "0");
-  const min = String(d.getUTCMinutes()).padStart(2, "0");
-  return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
+  return new Date(iso).toLocaleString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
 }
 
 interface ContributionRowProps {
   contribution: KnowledgeContribution;
+  pipelineJob: ContributionPipelineJob | null;
+  pipelineLoading: boolean;
   onClick: (id: string) => void;
   selected: boolean;
+  onPublish?: (ebookId: string) => void;
 }
 
 /**
@@ -43,8 +61,11 @@ interface ContributionRowProps {
  */
 export const ContributionRow = ({
   contribution,
+  pipelineJob,
+  pipelineLoading,
   onClick,
   selected,
+  onPublish,
 }: ContributionRowProps) => {
   const typeCls = TYPE_CLS[contribution.contributionType] ?? "text-gray-600 bg-gray-50";
   const statusVariant = STATUS_VARIANT[contribution.status] ?? "warning";
@@ -89,9 +110,57 @@ export const ContributionRow = ({
         {formatDate(contribution.createdAt)}
       </td>
 
+      {/* Pipeline */}
+      <td className="py-3 px-3 align-top min-w-[190px]">
+        {contribution.status !== "approved" ? (
+          <span className="text-xs text-gray-400">Chờ duyệt</span>
+        ) : pipelineJob ? (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Badge variant={PIPELINE_STATUS_VARIANT[pipelineJob.status]}>
+                {PIPELINE_STATUS_LABELS[pipelineJob.status]}
+              </Badge>
+              <span className="text-[11px] font-medium text-gray-500">{pipelineJob.progress}%</span>
+            </div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+              <div
+                className={`h-full rounded-full transition-all ${
+                  pipelineJob.status === "failed"
+                    ? "bg-red-500"
+                    : pipelineJob.status === "success"
+                      ? "bg-emerald-500"
+                      : "bg-blue-500"
+                }`}
+                style={{ width: `${Math.max(6, pipelineJob.progress)}%` }}
+              />
+            </div>
+            <p className="text-[11px] text-gray-500 line-clamp-1">{pipelineJob.backendStatus}</p>
+          </div>
+        ) : pipelineLoading ? (
+          <span className="text-xs text-blue-600">Đang đồng bộ...</span>
+        ) : (
+          <span className="text-xs text-amber-600">Chưa có job</span>
+        )}
+      </td>
+
       {/* Ngày duyệt */}
       <td className="py-3 px-3 align-top text-xs text-gray-400 whitespace-nowrap">
         {contribution.reviewedAt ? formatDate(contribution.reviewedAt) : "—"}
+      </td>
+
+      {/* Thao tác - Xuất bản */}
+      <td className="py-3 px-3 align-top">
+        {contribution.status === "approved" && contribution.ebookId && onPublish && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onPublish(contribution.ebookId!);
+            }}
+            className="text-xs px-2 py-1 bg-amber-100 text-amber-700 rounded hover:bg-amber-200 transition-colors"
+          >
+            Xuất bản
+          </button>
+        )}
       </td>
     </tr>
   );

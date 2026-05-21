@@ -6,6 +6,22 @@
 export type ContributionType = "medicine" | "herb" | "document";
 export type ContributionStatus = "pending" | "approved" | "rejected";
 export type ContributionAssetType = "pdf" | "docx" | "image" | "zip" | "other";
+export type ContributionPipelineStatus = "queued" | "running" | "success" | "failed" | null;
+
+export interface ContributionPipelineJob {
+  id: string;
+  contributionId: string | null;
+  processingType: string;
+  backendStatus: "pending_approval" | "pending" | "processing" | "completed" | "failed";
+  status: Exclude<ContributionPipelineStatus, null>;
+  progress: number;
+  fileName: string | null;
+  errorMessage: string | null;
+  createdAt: string;
+  startedAt: string | null;
+  completedAt: string | null;
+  updatedAt: string;
+}
 
 export interface ContributionAsset {
   assetId: string;
@@ -33,6 +49,11 @@ export interface KnowledgeContribution {
   reviewedAt: string | null;
   reviewerId: string | null;
   assets?: ContributionAsset[];
+  ebookId?: string | null;
+  ebook?: {
+    id: string;
+    isPublished: boolean;
+  } | null;
 }
 
 export interface CreateContributionPayload {
@@ -44,10 +65,9 @@ export interface CreateContributionPayload {
 }
 
 export interface AddContributionAssetPayload {
-  originalFileName: string;
-  storedFilePath: string;
-  mimeType: string;
-  fileSize: number;
+  file: File;
+  originalFileName?: string;
+  mimeType?: string;
   checksum?: string;
   assetType: ContributionAssetType;
 }

@@ -1,31 +1,57 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import { Card } from "@/components/ui/Card";
+import { Loader2 } from "lucide-react";
+
+const CHAT_BASE_URL = process.env.NEXT_PUBLIC_CHAT_BASE_URL || 'http://localhost:3002';
+
+function getToken() {
+  if (typeof window === 'undefined') return '';
+  return localStorage.getItem('accessToken') || '';
+}
+
+const DAYS = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
+const HOURS = ["6h", "8h", "10h", "12h", "14h", "16h", "18h", "20h", "22h"];
+const EMPTY_GRID = () => Array.from({ length: 7 }, () => Array(9).fill(0));
+
+function toIntensity(value: number, max: number): number {
+  if (max === 0 || value === 0) return 0;
+  const ratio = value / max;
+  if (ratio < 0.1) return 1;
+  if (ratio < 0.3) return 2;
+  if (ratio < 0.55) return 3;
+  if (ratio < 0.8) return 4;
+  return 5;
+}
 
 /**
  * PeakHourHeatmap Component
- * Biểu đồ nhiệt hiển thị giờ cao điểm dựa trên thiết kế
+ * Biểu đồ nhiệt từ API thật /chat/stats/heatmap
  */
 export const PeakHourHeatmap = () => {
-  const days = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
-  const hours = ["6h", "8h", "10h", "12h", "14h", "16h", "18h", "20h", "22h"];
 
-  // Mock data generation: higher intensity in the middle of the week and middle of the day
-  const generateIntensity = (dayIdx: number, hourIdx: number) => {
-    // 0: empty, 1: very light, 2: light, 3: medium, 4: dark, 5: very dark
-    if (dayIdx >= 5) { // Weekend
-      if (hourIdx < 2 || hourIdx > 6) return 1;
-      return 3;
-    }
-    
-    // Weekday
-    if (hourIdx < 2) return Math.random() > 0.5 ? 1 : 2;
-    if (hourIdx > 7) return 2;
-    
-    // Peak hours (14h-18h)
-    if (hourIdx >= 4 && hourIdx <= 6) return 4 + (Math.random() > 0.5 ? 1 : 0);
-    
-    return 3;
-  };
+  const [grid, setGrid] = useState<number[][]>(EMPTY_GRID());
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch(`${CHAT_BASE_URL}/chat/stats/heatmap`, {
+          headers: { Authorization: `Bearer ${getToken()}` },
+        });
+        if (res.ok) {
+          const json = await res.json() as { grid?: number[][] };
+          if (json.grid) setGrid(json.grid);
+        }
+      } catch { /* fallback empty */ } finally {
+        setLoading(false);
+      }
+    };
+    void load();
+  }, []);
+
+  const maxVal = Math.max(1, ...grid.flat());
 
   const getIntensityColor = (intensity: number) => {
     switch (intensity) {
@@ -41,43 +67,42 @@ export const PeakHourHeatmap = () => {
 
   return (
     <Card className="col-span-1 lg:col-span-4 w-full overflow-hidden">
-      <div className="mb-6">
-        <h3 className="text-lg font-bold text-gray-900">Heatmap Giờ cao điểm</h3>
-        <p className="text-sm text-gray-500">Tần suất truy cập theo khung giờ và ngày trong tuần</p>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h3 className="text-lg font-bold text-gray-900">Heatmap Giờ cao điểm</h3>
+          <p className="text-sm text-gray-500">Tần suất truy cập theo khung giờ và ngày trong tuần - 30 ngày gần nhất</p>
+        </div>
+        {loading && <Loader2 size={16} className="animate-spin text-gray-400" />}
       </div>
 
       <div className="w-full overflow-x-auto">
         <div className="min-w-[700px]">
           {/* Header row (hours) */}
           <div className="flex mb-2">
-            <div className="w-12"></div> {/* Empty space for day column */}
+            <div className="w-12" />
             <div className="flex-1 grid grid-cols-9 gap-2 px-2">
-              {hours.map((hour, idx) => (
-                <div key={idx} className="text-xs text-center text-gray-500 font-medium">
-                  {hour}
-                </div>
+              {HOURS.map((hour, idx) => (
+                <div key={idx} className="text-xs text-center text-gray-500 font-medium">{hour}</div>
               ))}
             </div>
           </div>
 
-          {/* Grid setup */}
+          {/* Grid */}
           <div className="flex flex-col gap-2">
-            {days.map((day, dayIdx) => (
+            {DAYS.map((day, dayIdx) => (
               <div key={dayIdx} className="flex items-center">
                 <div className="w-12 text-sm text-gray-600 font-medium">{day}</div>
                 <div className="flex-1 grid grid-cols-9 gap-2 px-2">
-                  {hours.map((_, hourIdx) => {
-                    const intensity = generateIntensity(dayIdx, hourIdx);
-                    // Add some blank spots randomly for visual fidelity to wireframe
-                    const isBlank = Math.random() < 0.1 && intensity < 3;
-                    
+                  {HOURS.map((_, hourIdx) => {
+                    const val = grid[dayIdx]?.[hourIdx] ?? 0;
+                    const intensity = toIntensity(val, maxVal);
                     return (
                       <div
                         key={hourIdx}
                         className={`h-8 rounded-full transition-colors hover:ring-2 ring-emerald-300 ring-offset-1 ${
-                          isBlank ? 'bg-transparent' : getIntensityColor(intensity)
+                          intensity === 0 ? 'bg-gray-50' : getIntensityColor(intensity)
                         }`}
-                        title={`${day} lúc ${hours[hourIdx]} - Mức: ${intensity}`}
+                        title={`${day} lúc ${HOURS[hourIdx]} - ${val} phiên`}
                       />
                     );
                   })}

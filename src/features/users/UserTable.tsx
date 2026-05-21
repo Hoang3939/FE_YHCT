@@ -1,14 +1,23 @@
 "use client";
 
 import React from "react";
-import { BadgeCheck, MoreHorizontal } from "lucide-react";
+import { BadgeCheck, Lock, Unlock, Trash2, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import type { User, UserRole, UserStatus } from "@/types/user";
+import { USER_ROLE_LABELS } from "@/types/user";
 import { formatNumber } from "@/lib/utils";
 
 interface UserTableProps {
   /** Danh sách users cần hiển thị */
   users: User[];
+  /** Callback khi khóa/mở khóa user */
+  onToggleLock?: (userId: string, currentStatus: string) => void;
+  /** Callback khi thay đổi vai trò */
+  onRoleChange?: (userId: string, newRole: UserRole) => void;
+  /** Callback khi xóa user */
+  onDelete?: (userId: string, userName: string) => void;
+  /** Callback khi chỉnh sửa user */
+  onEdit?: (user: User) => void;
 }
 
 // ─────────────────────────────────────────────
@@ -28,10 +37,10 @@ function getStatusVariant(status: UserStatus): "success" | "warning" | "error" |
 // ─────────────────────────────────────────────
 function getRoleBadgeClass(role: UserRole): string {
   switch (role) {
-    case "Quản lý viên":    return "bg-emerald-100 text-emerald-700";
-    case "Chuyên gia y tế": return "bg-blue-100 text-blue-700";
-    case "Nghiên cứu sinh": return "bg-purple-100 text-purple-700";
-    default:                return "bg-gray-100 text-gray-600";
+    case "admin":  return "bg-emerald-100 text-emerald-700";
+    case "expert": return "bg-blue-100 text-blue-700";
+    case "user":   return "bg-gray-100 text-gray-600";
+    default:       return "bg-gray-100 text-gray-600";
   }
 }
 
@@ -84,7 +93,7 @@ const UserInfoCell = ({ user, index }: { user: User; index: number }) => (
  * Bảng hiển thị danh sách người dùng với đầy đủ cột thông tin.
  * Avatar, badge vai trò/trạng thái, icon verified, nút action.
  */
-export const UserTable = ({ users }: UserTableProps) => {
+export const UserTable = ({ users, onToggleLock, onRoleChange, onDelete, onEdit }: UserTableProps) => {
   if (users.length === 0) {
     return (
       <div className="text-center py-16 text-gray-400 text-sm">
@@ -138,9 +147,21 @@ export const UserTable = ({ users }: UserTableProps) => {
 
               {/* Vai trò */}
               <td className="py-3.5 px-3">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleBadgeClass(user.role)}`}>
-                  {user.role}
-                </span>
+                {onRoleChange ? (
+                  <select
+                    value={user.role}
+                    onChange={(e) => onRoleChange(user.id, e.target.value as UserRole)}
+                    className={`text-xs font-medium px-2 py-0.5 rounded-full border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${getRoleBadgeClass(user.role)}`}
+                  >
+                    <option value="user">Người dùng</option>
+                    <option value="expert">Chuyên gia</option>
+                    <option value="admin">Quản trị viên</option>
+                  </select>
+                ) : (
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleBadgeClass(user.role)}`}>
+                    {USER_ROLE_LABELS[user.role]}
+                  </span>
+                )}
               </td>
 
               {/* Trạng thái */}
@@ -172,9 +193,39 @@ export const UserTable = ({ users }: UserTableProps) => {
 
               {/* Action */}
               <td className="py-3.5 px-3">
-                <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors">
-                  <MoreHorizontal size={16} />
-                </button>
+                <div className="flex items-center gap-1">
+                  {onEdit && (
+                    <button
+                      onClick={() => onEdit(user)}
+                      className="p-1.5 rounded-lg hover:bg-emerald-50 text-gray-400 hover:text-emerald-600 transition-colors"
+                      title="Chỉnh sửa"
+                      aria-label="Chỉnh sửa người dùng"
+                    >
+                      <Pencil size={16} />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => onToggleLock?.(user.id, user.status)}
+                    className={`p-1.5 rounded-lg transition-colors ${
+                      user.status === "Tạm khóa"
+                        ? "text-red-500 hover:bg-red-50"
+                        : "text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+                    }`}
+                    title={user.status === "Tạm khóa" ? "Mở khóa" : "Khóa"}
+                  >
+                    {user.status === "Tạm khóa" ? <Unlock size={16} /> : <Lock size={16} />}
+                  </button>
+                  {onDelete && (
+                    <button
+                      onClick={() => onDelete(user.id, user.name)}
+                      className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
+                      title="Xóa người dùng"
+                      aria-label="Xóa người dùng"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
+                </div>
               </td>
             </tr>
           ))}

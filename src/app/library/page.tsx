@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Search, Loader2 } from "lucide-react";
+import { UserAppShell } from "@/components/layout/UserAppShell";
 
 const CATALOG_BASE_URL = process.env.NEXT_PUBLIC_CATALOG_BASE_URL || "http://localhost:3004";
 
@@ -121,9 +122,13 @@ export default function LibraryPage() {
   const restBooks = books.slice(3);
 
   return (
+    <UserAppShell
+      title="Thư viện Y học Cổ truyền"
+      description="Khám phá kho tàng tri thức Y học cổ truyền được số hóa và hỗ trợ bởi trí tuệ nhân tạo."
+    >
     <div className="w-full flex flex-col items-center">
       {/* Hero Section */}
-      <div className="w-[571px] mt-[112px] flex flex-col justify-start items-center gap-7">
+      <div className="w-[571px] mt-8 flex flex-col justify-start items-center gap-7">
         <h1 className="self-stretch text-center text-green-800 text-5xl font-semibold font-display">
           Thư viện Y học Cổ truyền
         </h1>
@@ -231,5 +236,6 @@ export default function LibraryPage() {
         <div className="mb-[100px]" />
       )}
     </div>
+    </UserAppShell>
   );
 }

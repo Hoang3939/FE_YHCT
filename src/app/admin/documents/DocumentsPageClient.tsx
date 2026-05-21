@@ -78,6 +78,27 @@ export default function DocumentsPageClient() {
     }
   };
 
+  const publishEbook = async (ebookId: string) => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const res = await fetch(`${CATALOG_BASE_URL}/ebooks/${ebookId}/publish`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ isPublished: true }),
+      });
+      if (!res.ok) {
+        throw new Error('Xuất bản thất bại.');
+      }
+      setMessage('Đã xuất bản ebook.');
+      await loadEbooks();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Xuất bản thất bại.');
+    }
+  };
+
   useEffect(() => {
     void loadEbooks();
   }, []);
@@ -240,49 +261,64 @@ export default function DocumentsPageClient() {
 
   return (
     <div className="max-w-[1600px] mx-auto space-y-6">
-      <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
-        <div className="flex items-center gap-2 mb-4">
+      <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+        <div className="flex items-center gap-2 mb-6">
           <Plus className="w-4 h-4 text-emerald-600" />
           <h2 className="text-base font-semibold text-gray-900">Thêm mới Ebook</h2>
         </div>
 
-        <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={onCreateEbook}>
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">Tiêu đề</label>
+        <form className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4" onSubmit={onCreateEbook}>
+          <div className="flex flex-col gap-1.5">
+            <label className="block text-sm font-medium text-gray-700">Tiêu đề</label>
             <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Nhập tiêu đề Ebook" />
           </div>
 
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">Tác giả</label>
+          <div className="flex flex-col gap-1.5">
+            <label className="block text-sm font-medium text-gray-700">Tác giả</label>
             <Input value={author} onChange={(e) => setAuthor(e.target.value)} placeholder="Ví dụ: Hải Thượng Lãn Ông" />
           </div>
 
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">Danh mục</label>
-            <Input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Ví dụ: Bài thuốc" />
+          <div className="flex flex-col gap-1.5">
+            <label className="block text-sm font-medium text-gray-700">Danh mục</label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="h-10 px-3 text-sm bg-white border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-400 transition-colors"
+            >
+              <option value="">— Chọn danh mục —</option>
+              <option value="Y học cổ truyền">Y học cổ truyền</option>
+              <option value="Bài thuốc">Bài thuốc</option>
+              <option value="Dược liệu">Dược liệu</option>
+              <option value="Châm cứu">Châm cứu</option>
+              <option value="Bệnh học">Bệnh học</option>
+              <option value="Giải phẫu">Giải phẫu</option>
+              <option value="Dinh dưỡng">Dinh dưỡng</option>
+              <option value="Khác">Khác</option>
+            </select>
           </div>
 
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">Ảnh bìa</label>
+          <div className="flex flex-col gap-1.5">
+            <label className="block text-sm font-medium text-gray-700">Ảnh bìa</label>
             <Input type="file" accept="image/*" onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)} />
           </div>
 
-          <div className="space-y-1 md:col-span-2">
-            <label className="text-sm font-medium text-gray-700">Mô tả</label>
+          <div className="flex flex-col gap-1.5 md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700">Mô tả</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full min-h-[90px] rounded-lg border border-gray-200 p-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+              className="w-full min-h-[96px] rounded-lg border border-gray-200 p-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 resize-none"
               placeholder="Mô tả ngắn nội dung Ebook"
             />
           </div>
 
-          <div className="space-y-1 md:col-span-2">
-            <label className="text-sm font-medium text-gray-700">File PDF gốc</label>
+          <div className="flex flex-col gap-1.5 md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700">File PDF gốc</label>
             <Input type="file" accept="application/pdf" onChange={(e) => setPdfFile(e.target.files?.[0] ?? null)} />
+            <p className="text-xs text-gray-400">Sau khi tạo, ebook sẽ được xử lý qua pipeline trước khi xuất bản.</p>
           </div>
 
-          <div className="md:col-span-2 flex justify-end">
+          <div className="md:col-span-2 flex justify-end pt-2">
             <Button type="submit" disabled={submitting}>
               {submitting ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Upload className="w-4 h-4 mr-1" />}
               {submitting ? "Đang tạo..." : "Lưu Ebook & Tạo pipeline"}
@@ -324,6 +360,7 @@ export default function DocumentsPageClient() {
                   <th className="py-3 pr-3">Danh mục</th>
                   <th className="py-3 pr-3">Dữ liệu Vector</th>
                   <th className="py-3 pr-3">Xuất bản</th>
+                  <th className="py-3 pr-3">Thao tác</th>
                 </tr>
               </thead>
               <tbody>
@@ -354,12 +391,22 @@ export default function DocumentsPageClient() {
                     <td className="py-3 pr-3">
                       {book.isPublished ? <Badge variant="success">Published</Badge> : <Badge variant="default">Draft</Badge>}
                     </td>
+                    <td className="py-3 pr-3">
+                      {!book.isPublished && (
+                        <button
+                          onClick={() => publishEbook(book.id)}
+                          className="text-xs px-2 py-1 bg-emerald-100 text-emerald-700 rounded hover:bg-emerald-200 transition-colors"
+                        >
+                          Xuất bản
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 ))}
 
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-12 text-center text-gray-500">
+                    <td colSpan={6} className="py-12 text-center text-gray-500">
                       Không có Ebook phù hợp.
                     </td>
                   </tr>

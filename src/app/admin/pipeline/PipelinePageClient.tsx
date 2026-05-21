@@ -1,78 +1,102 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { PipelineSummary }   from "@/features/pipeline/PipelineSummary";
-import { EngineStatusBar }   from "@/features/pipeline/EngineStatusBar";
-import { PipelineStepper }   from "@/features/pipeline/PipelineStepper";
-import { ThroughputChart }   from "@/features/pipeline/ThroughputChart";
-import { WorkerNodes }       from "@/features/pipeline/WorkerNodes";
-import { JobQueueTable }     from "@/features/pipeline/JobQueueTable";
-import { TerminalLog }       from "@/features/pipeline/TerminalLog";
+import React, { useEffect, useMemo, useState } from "react";
+import { PipelineSummary } from "@/features/pipeline/PipelineSummary";
+import { EngineStatusBar } from "@/features/pipeline/EngineStatusBar";
+import { PipelineStepper } from "@/features/pipeline/PipelineStepper";
+import { ThroughputChart } from "@/features/pipeline/ThroughputChart";
+import { WorkerNodes } from "@/features/pipeline/WorkerNodes";
+import { JobQueueTable } from "@/features/pipeline/JobQueueTable";
+import { TerminalLog } from "@/features/pipeline/TerminalLog";
 import type { Job, PipelineStats } from "@/types/pipeline";
+import { deletePipelineJob } from "@/services/api/dashboard.service";
 
 const PIPELINE_BASE_URL = process.env.NEXT_PUBLIC_PIPELINE_BASE_URL ?? "http://localhost:3006";
 
-/**
- * PipelinePageClient
- * Client component lắp ráp toàn bộ giao diện trang Vận hành Pipeline RAG.
- */
 const PipelinePageClient = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [stats, setStats] = useState<PipelineStats | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchData = async () => {
+      if (isMounted) {
+        setIsRefreshing(true);
+      }
+
       try {
         const [jobsRes, statsRes] = await Promise.all([
-          fetch(`${PIPELINE_BASE_URL}/pipelines`),
-          fetch(`${PIPELINE_BASE_URL}/pipelines/stats`)
+          fetch(`${PIPELINE_BASE_URL}/pipelines`, { cache: "no-store" }),
+          fetch(`${PIPELINE_BASE_URL}/pipelines/stats`, { cache: "no-store" }),
         ]);
+
+        if (!isMounted) {
+          return;
+        }
 
         if (jobsRes.ok) {
           const result = await jobsRes.json();
-          setJobs(result.data || []);
+          setJobs(Array.isArray(result.data) ? result.data : []);
         }
+
         if (statsRes.ok) {
           const result = await statsRes.json();
           setStats(result.data || null);
         }
       } catch (error) {
         console.error("Failed to fetch pipeline data", error);
+      } finally {
+        if (isMounted) {
+          setIsRefreshing(false);
+        }
       }
     };
 
-    fetchData();
-    const interval = setInterval(fetchData, 5000); // Polling every 5 seconds
-    return () => clearInterval(interval);
+    void fetchData();
+    const interval = window.setInterval(() => {
+      void fetchData();
+    }, 5000);
+
+    return () => {
+      isMounted = false;
+      window.clearInterval(interval);
+    };
   }, []);
 
+  const handleDeleteJob = async (id: string) => {
+    if (!confirm("Xác nhận xóa job này?")) return;
+    try {
+      await deletePipelineJob(id);
+      setJobs((prev) => prev.filter((j) => j.id !== id));
+    } catch {
+      alert("Xóa job thất bại");
+    }
+  };
+
+  const activeJob = useMemo(() => {
+    return jobs.find((job) => job.status === "running") ?? jobs.find((job) => job.status === "queued") ?? null;
+  }, [jobs]);
+
   return (
-    <div className="flex flex-col gap-5 max-w-[1600px] mx-auto">
-      {/* Row 1: Stats */}
+    <div className="mx-auto flex max-w-[1600px] flex-col gap-5">
       <PipelineSummary stats={stats} />
+      <EngineStatusBar jobs={jobs} stats={stats} isRefreshing={isRefreshing} />
+      <PipelineStepper activeJob={activeJob} />
 
-    {/* Row 2: Engine bar */}
-    <EngineStatusBar />
-
-    {/* Row 3: Flowchart */}
-    <PipelineStepper />
-
-    {/* Row 4: Chart 70% + Workers 30% */}
-    <div className="grid grid-cols-1 lg:grid-cols-10 gap-5">
-      <div className="lg:col-span-7">
-        <ThroughputChart />
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-10">
+        <div className="lg:col-span-7">
+          <ThroughputChart jobs={jobs} stats={stats} />
+        </div>
+        <div className="lg:col-span-3">
+          <WorkerNodes jobs={jobs} />
+        </div>
       </div>
-      <div className="lg:col-span-3">
-        <WorkerNodes />
-      </div>
+
+      <JobQueueTable jobs={jobs} onDelete={handleDeleteJob} />
+      <TerminalLog jobs={jobs} />
     </div>
-
-    {/* Row 5: Job queue */}
-    <JobQueueTable jobs={jobs} />
-
-    {/* Row 6: Terminal log */}
-    <TerminalLog />
-  </div>
   );
 };
 

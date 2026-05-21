@@ -2,6 +2,7 @@ import { ensureValidAccessToken } from "@/lib/session";
 import type {
   AddContributionAssetPayload,
   ContributionAsset,
+  ContributionPipelineJob,
   ContributionStatus,
   CreateContributionPayload,
   KnowledgeContribution,
@@ -106,16 +107,22 @@ export async function reviewContribution(
 export async function createContribution(
   payload: CreateContributionPayload,
 ): Promise<MessageApiResponse<KnowledgeContribution>> {
+  console.log('[DEBUG] Creating contribution with payload:', payload);
   const res = await fetch(`${BASE_URL}/contributions`, {
     method: "POST",
     headers: await buildJsonHeaders(),
     body: JSON.stringify(payload),
   });
 
+  console.log('[DEBUG] Response status:', res.status, res.statusText);
+
   const result = await parseMessageApiResponse<KnowledgeContribution>(res).catch(() => undefined);
+  console.log('[DEBUG] Response result:', result);
 
   if (!res.ok) {
-    throw new Error(getErrorMessage(result, "Tạo hồ sơ đóng góp thất bại."));
+    const errorMsg = getErrorMessage(result, `Lỗi ${res.status}: Tạo hồ sơ đóng góp thất bại.`);
+    console.error('[ERROR] createContribution failed:', errorMsg);
+    throw new Error(errorMsg);
   }
 
   return result as MessageApiResponse<KnowledgeContribution>;
@@ -125,17 +132,50 @@ export async function addContributionAsset(
   contributionId: string,
   payload: AddContributionAssetPayload,
 ): Promise<MessageApiResponse<ContributionAsset>> {
+  const token = await ensureValidAccessToken();
+  const formData = new FormData();
+
+  formData.append("file", payload.file);
+  formData.append("assetType", payload.assetType);
+
+  if (payload.originalFileName) {
+    formData.append("originalFileName", payload.originalFileName);
+  }
+
+  if (payload.mimeType) {
+    formData.append("mimeType", payload.mimeType);
+  }
+
+  if (payload.checksum) {
+    formData.append("checksum", payload.checksum);
+  }
+
   const res = await fetch(`${BASE_URL}/contributions/${contributionId}/assets`, {
     method: "POST",
-    headers: await buildJsonHeaders(),
-    body: JSON.stringify(payload),
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    body: formData,
   });
 
   const result = await parseMessageApiResponse<ContributionAsset>(res).catch(() => undefined);
 
   if (!res.ok) {
-    throw new Error(getErrorMessage(result, "Gửi metadata tài liệu thất bại."));
+    throw new Error(getErrorMessage(result, "Tải tài liệu đóng góp thất bại."));
   }
 
   return result as MessageApiResponse<ContributionAsset>;
+}
+
+export async function fetchLatestContributionPipeline(
+  contributionId: string,
+): Promise<ContributionPipelineJob | null> {
+  const PIPELINE_BASE_URL = process.env.NEXT_PUBLIC_PIPELINE_BASE_URL ?? "http://localhost:3006";
+  const res = await fetch(`${PIPELINE_BASE_URL}/pipelines/contributions/${contributionId}/latest`, {
+    headers: await buildJsonHeaders(),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch latest pipeline for contribution ${contributionId}: ${res.status}`);
+  }
+
+  return parseApiResponse<ContributionPipelineJob | null>(res);
 }

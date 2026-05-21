@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/Badge";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import type { Job, JobStatus } from "@/types/pipeline";
 import { formatNumber } from "@/lib/utils";
-import { RotateCcw, AlertTriangle } from "lucide-react";
+import { RotateCcw, AlertTriangle, Trash2 } from "lucide-react";
 
 /** Badge theo trạng thái job */
 function getJobVariant(status: JobStatus): "success" | "warning" | "error" | "default" {
@@ -26,18 +26,19 @@ const JOB_STATUS_LABELS: Record<JobStatus, string> = {
   paused:  "Tạm dừng",
 };
 
-const JOB_TYPE_LABELS = {
+const JOB_TYPE_LABELS: Record<Job["type"], string> = {
   batch_import: "Batch",
-  crawl:        "Crawl",
-  re_embed:     "Re-embed",
-  manual:       "Thủ công",
+  crawl: "Crawl",
+  re_embed: "Re-embed",
+  manual: "Thủ công",
+  contribution_queue: "Đóng góp",
 };
 
 /**
  * JobQueueTable Component
  * Bảng danh sách jobs với progress bar màu, worker, docs/chunks và action
  */
-export const JobQueueTable = ({ jobs = [] }: { jobs?: Job[] }) => (
+export const JobQueueTable = ({ jobs = [], onDelete }: { jobs?: Job[]; onDelete?: (id: string) => void }) => (
   <Card className="p-5">
     <div className="flex items-center justify-between mb-4">
       <div>
@@ -124,22 +125,33 @@ export const JobQueueTable = ({ jobs = [] }: { jobs?: Job[] }) => (
 
               {/* Action */}
               <td className="py-3 px-3">
-                {job.status === "failed" && (
-                  <button
-                    title="Chạy lại"
-                    className="p-1.5 rounded hover:bg-yellow-50 text-yellow-600 transition-colors"
-                  >
-                    <RotateCcw size={13} />
-                  </button>
-                )}
-                {job.status === "running" && (
-                  <button
-                    title="Cảnh báo"
-                    className="p-1.5 rounded hover:bg-gray-100 text-gray-400 transition-colors"
-                  >
-                    <AlertTriangle size={13} />
-                  </button>
-                )}
+                <div className="flex items-center gap-1">
+                  {job.status === "failed" && (
+                    <button
+                      title="Chạy lại"
+                      className="p-1.5 rounded hover:bg-yellow-50 text-yellow-600 transition-colors"
+                    >
+                      <RotateCcw size={13} />
+                    </button>
+                  )}
+                  {job.status === "running" && (
+                    <button
+                      title="Cảnh báo"
+                      className="p-1.5 rounded hover:bg-gray-100 text-gray-400 transition-colors"
+                    >
+                      <AlertTriangle size={13} />
+                    </button>
+                  )}
+                  {(job.status === "queued") && onDelete && (
+                    <button
+                      title="Xóa job"
+                      onClick={() => onDelete(job.id)}
+                      className="p-1.5 rounded hover:bg-red-50 text-red-400 hover:text-red-600 transition-colors"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  )}
+                </div>
               </td>
             </tr>
           ))}

@@ -54,3 +54,62 @@ export async function createFeedback(
 
   return payload as CreateFeedbackResponse;
 }
+
+// Admin: Update feedback status
+export async function updateFeedbackStatus(
+  feedbackId: string,
+  status: 'pending' | 'in_progress' | 'resolved' | 'rejected',
+): Promise<Feedback> {
+  const res = await fetch(`${BASE_URL}/feedbacks/${feedbackId}/status`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ status }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to update feedback status: ${res.status}`);
+  }
+
+  return res.json();
+}
+
+// Admin: Assign feedback to expert
+export async function assignFeedback(
+  feedbackId: string,
+  expertId: string,
+): Promise<Feedback> {
+  const res = await fetch(`${BASE_URL}/feedbacks/${feedbackId}/assign`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ expertId }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to assign feedback: ${res.status}`);
+  }
+
+  return res.json();
+}
+
+// Admin: Get feedback statistics
+export async function fetchFeedbackStats(): Promise<{
+  total: number;
+  pending: number;
+  inProgress: number;
+  resolved: number;
+  rejected: number;
+}> {
+  const res = await fetch(`${BASE_URL}/feedbacks/stats`, {
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch feedback stats: ${res.status}`);
+  }
+
+  return res.json();
+}

@@ -1,90 +1,24 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { CheckCircle2, Clock, AlertCircle, FileEdit, UserPlus, MessageCircle } from "lucide-react";
-import { sortData } from "@/lib/utils";
-
-// Định nghĩa interface cho Activity
-interface ActivityItem {
-  id: string;
-  title: string;
-  subtitle: string;
-  timestamp: string; // ISO string để sort
-  displayTime: string;
-  type: 'success' | 'warning' | 'error' | 'info';
-  actionType: 'approve' | 'pending' | 'error' | 'register' | 'feedback' | 'edit';
-}
-
-const mockActivities: ActivityItem[] = [
-  {
-    id: "1",
-    title: 'Bài thuốc "Tam thất tam" đã được phê duyệt',
-    subtitle: "Bởi bác sĩ Lê Hữu Trác",
-    timestamp: "2026-03-03T10:15:00Z",
-    displayTime: "2 phút trước",
-    type: "success",
-    actionType: "approve",
-  },
-  {
-    id: "2",
-    title: "12 tài liệu dược liệu mới đang chờ duyệt",
-    subtitle: "Hệ thống System Worker",
-    timestamp: "2026-03-03T10:05:00Z",
-    displayTime: "8 phút trước",
-    type: "warning",
-    actionType: "pending",
-  },
-  {
-    id: "3",
-    title: "Lỗi đồng bộ vector DB - chunk #2847",
-    subtitle: "RAG Engine",
-    timestamp: "2026-03-03T09:50:00Z",
-    displayTime: "15 phút trước",
-    type: "error",
-    actionType: "error",
-  },
-  {
-    id: "4",
-    title: "Người dùng NguyenVanA đã đăng ký tài khoản",
-    subtitle: "Hệ thống User Auth",
-    timestamp: "2026-03-03T09:30:00Z",
-    displayTime: "22 phút trước",
-    type: "info",
-    actionType: "register",
-  },
-  {
-    id: "5",
-    title: 'Góp ý: "Thiếu liều dùng cho trẻ em" - bài #1209',
-    subtitle: "Khách User394",
-    timestamp: "2026-03-03T09:10:00Z",
-    displayTime: "35 phút trước",
-    type: "info",
-    actionType: "feedback",
-  },
-  {
-    id: "6",
-    title: 'Bài thuốc "Tam thất tam" đã được sửa đổi',
-    subtitle: "Bởi Admin",
-    timestamp: "2026-03-03T08:00:00Z",
-    displayTime: "1 giờ trước",
-    type: "info",
-    actionType: "edit",
-  },
-];
+import { CheckCircle2, Clock, AlertCircle, FileEdit, MessageCircle, Loader2, UserPlus } from "lucide-react";
+import { fetchRecentActivity, type RecentActivityItem } from "@/services/api/dashboard.service";
 
 /**
  * RecentActivityList Component
- * Danh sách hiển thị các hoạt động gần đây của hệ thống
+ * Danh sách hiển thị các hoạt động đóng góp gần đây từ API thật
  */
 export const RecentActivityList = () => {
-  // Sử dụng hàm sortData từ utils để sắp xếp theo thời gian mới nhất
-  const sortedActivities = useMemo(() => {
-    return sortData(mockActivities, "timestamp", "desc");
+  const [activities, setActivities] = useState<RecentActivityItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchRecentActivity().then(setActivities).finally(() => setLoading(false));
   }, []);
 
-  const getIcon = (actionType: ActivityItem['actionType']) => {
+  const getIcon = (actionType: RecentActivityItem['actionType']) => {
     switch (actionType) {
       case 'approve': return <CheckCircle2 size={16} className="text-emerald-500" />;
       case 'pending': return <Clock size={16} className="text-yellow-500" />;
@@ -96,7 +30,7 @@ export const RecentActivityList = () => {
     }
   };
 
-  const getBadgeVariant = (type: ActivityItem['type']) => {
+  const getBadgeVariant = (type: RecentActivityItem['type']) => {
     switch (type) {
       case 'success': return 'success';
       case 'warning': return 'warning';
@@ -106,7 +40,7 @@ export const RecentActivityList = () => {
     }
   };
 
-  const getStatusLabel = (actionType: ActivityItem['actionType']) => {
+  const getStatusLabel = (actionType: RecentActivityItem['actionType']) => {
     switch (actionType) {
       case 'approve': return 'Đã duyệt';
       case 'pending': return 'Đang xử lý';
@@ -125,8 +59,21 @@ export const RecentActivityList = () => {
         <p className="text-sm text-gray-500">Nhật ký hệ thống - Real-time</p>
       </div>
 
+      {loading && (
+        <div className="flex-1 flex items-center justify-center">
+          <Loader2 size={24} className="animate-spin text-emerald-500" />
+        </div>
+      )}
+
+      {!loading && activities.length === 0 && (
+        <div className="flex-1 flex items-center justify-center text-sm text-gray-400">
+          Không có hoạt động nào gần đây.
+        </div>
+      )}
+
+      {!loading && (
       <div className="flex-1 overflow-y-auto pr-2 -mr-2 space-y-4">
-        {sortedActivities.map((activity) => (
+        {activities.map((activity) => (
           <div key={activity.id} className="flex gap-3 pb-4 border-b border-gray-100 last:border-0 last:pb-0">
             <div className="mt-1">
               <div className="w-8 h-8 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center">
@@ -155,6 +102,7 @@ export const RecentActivityList = () => {
           </div>
         ))}
       </div>
+      )}
     </Card>
   );
 };

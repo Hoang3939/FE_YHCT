@@ -1,57 +1,66 @@
-import React from "react";
-import { Activity, StopCircle, Play, List, LayoutDashboard } from "lucide-react";
+import React, { useMemo } from "react";
+import { Activity, RefreshCw, List, Layers, Timer } from "lucide-react";
+import type { Job, PipelineStats } from "@/types/pipeline";
 
-/**
- * EngineStatusBar Component
- * Thanh trạng thái nền tối hiển thị thông tin engine đang chạy + action buttons
- */
-export const EngineStatusBar = () => {
+interface EngineStatusBarProps {
+  jobs?: Job[];
+  stats?: PipelineStats | null;
+  isRefreshing?: boolean;
+}
+
+export const EngineStatusBar = ({ jobs = [], stats, isRefreshing = false }: EngineStatusBarProps) => {
+  const runningJobs = useMemo(() => jobs.filter((job) => job.status === "running").length, [jobs]);
+  const queuedJobs = useMemo(() => jobs.filter((job) => job.status === "queued").length, [jobs]);
+  const averageProgress = useMemo(() => {
+    if (jobs.length === 0) {
+      return 0;
+    }
+
+    const totalProgress = jobs.reduce((sum, job) => sum + (Number(job.progress) || 0), 0);
+    return Math.round(totalProgress / jobs.length);
+  }, [jobs]);
+
   const quickStats = [
-    { label: "Active Workers", value: "2/3" },
-    { label: "Queue Depth",    value: "2 jobs" },
-    { label: "Avg Throughput", value: "118 chunks/min" },
-    { label: "Error Rate",     value: "8.3%" },
+    { label: "Đang chạy", value: `${runningJobs} job`, icon: Activity },
+    { label: "Đang chờ", value: `${queuedJobs} job`, icon: List },
+    { label: "Chunks đã tạo", value: `${stats?.chunksCreated ?? 0}`, icon: Layers },
+    { label: "Tiến độ TB", value: `${averageProgress}%`, icon: Timer },
   ];
 
   return (
-    <div className="bg-gray-900 rounded-xl px-5 py-4 mb-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-      {/* Engine name + pulse badge */}
+    <div className="mb-5 flex flex-col gap-4 rounded-xl bg-gray-900 px-5 py-4 lg:flex-row lg:items-center">
       <div className="flex items-center gap-3 shrink-0">
         <Activity size={20} className="text-emerald-400" />
         <div>
           <p className="text-sm font-bold text-white">Pipeline Engine</p>
-          <p className="text-[10px] text-gray-400">RAG Processing Core v2.4.1&#8209;stable</p>
+          <p className="text-[10px] text-gray-400">Polling từ pipeline-service mỗi 5 giây</p>
         </div>
-        <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-[10px] font-bold tracking-wider">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          ONLINE
+        <span className="flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-emerald-400">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          LIVE
         </span>
       </div>
 
-      {/* Quick stats */}
-      <div className="flex items-center gap-5 flex-wrap flex-1">
-        {quickStats.map((s) => (
-          <div key={s.label} className="text-xs">
-            <p className="text-gray-500">{s.label}</p>
-            <p className="text-white font-semibold mt-0.5">{s.value}</p>
-          </div>
-        ))}
+      <div className="flex flex-1 flex-wrap items-center gap-5">
+        {quickStats.map((item) => {
+          const Icon = item.icon;
+          return (
+            <div key={item.label} className="text-xs">
+              <p className="flex items-center gap-1 text-gray-500">
+                <Icon size={12} />
+                {item.label}
+              </p>
+              <p className="mt-0.5 font-semibold text-white">{item.value}</p>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Action buttons */}
-      <div className="flex items-center gap-2 shrink-0">
-        <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-300 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors">
-          <LayoutDashboard size={13} /> Tổng quan
-        </button>
-        <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-300 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors">
-          <List size={13} /> Log
-        </button>
-        <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-red-400 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-lg transition-colors">
-          <StopCircle size={13} /> Dừng tất cả
-        </button>
-        <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-lg transition-colors">
-          <Play size={13} /> Chạy queue
-        </button>
+      <div className="flex items-center gap-2 self-start lg:self-center">
+        <div className="inline-flex items-center gap-2 rounded-lg border border-gray-700 bg-gray-800 px-3 py-1.5 text-xs text-gray-200">
+          <RefreshCw size={13} className={isRefreshing ? "animate-spin text-emerald-400" : "text-gray-400"} />
+          {isRefreshing ? "Đang đồng bộ" : "Đã đồng bộ"}
+        </div>
       </div>
     </div>
   );
